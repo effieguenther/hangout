@@ -7,15 +7,6 @@ import {
 } from 'react-native-paper';import 'react-native-reanimated';
 
 export default function RootLayout() {
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
-  }
-
   return (
     <PaperProvider theme={DefaultTheme}>
       <Stack>
@@ -24,7 +15,6 @@ export default function RootLayout() {
         <Stack.Screen name="(build_hangout)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
-    {/* <StatusBar style="auto" /> */}
     </PaperProvider>
   );
 }

@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+import { Text } from 'react-native-paper';
 
 export default function MenuLayout() {
   return (

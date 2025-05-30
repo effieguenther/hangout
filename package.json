@@ -19,7 +19,7 @@
     "@rn-primitives/slot": "^1.2.0",
     "@rn-primitives/types": "^1.2.0",
     "@rn-primitives/utils": "^1.2.0",
-    "expo": "~53.0.9",
+    "expo": "^53.0.9",
     "expo-blur": "~14.1.4",
     "expo-constants": "~17.1.6",
     "expo-font": "~13.3.1",

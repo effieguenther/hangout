@@ -1,49 +1,68 @@
 // app/(app)/home.js
-import React from 'react';
+import { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Button, Text, useTheme, Surface, TouchableRipple } from 'react-native-paper';
+import { 
+  Text, 
+  useTheme, 
+  Surface, 
+  TouchableRipple,
+  Switch,
+  Avatar
+} from 'react-native-paper';
 import { router } from 'expo-router';
 
 export default function HomeScreen() {
   const theme = useTheme();
+  const [isAvailable, setIsAvailable] = useState(false);
+  const onToggleAvailable = () => {
+    setIsAvailable(!isAvailable);
+  }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View style={styles.container}>
       <Text variant="headlineMedium" style={{ marginBottom: 20, color: theme.colors.onBackground }}>
         LET'S HANG
       </Text>
 
-      <View style={styles.userInfoContainer}>
-        <Text>
-          URSHILA RANA
-        </Text>
-        <Text>
-          urshilarana96@gmail.com
-        </Text>
+      <View style={{
+        ...styles.userInfoContainer, 
+        flexDirection: 'row',
+        gap: 15,
+        alignItems: 'center'
+      }}>
+        <Avatar.Text size={44} label="UR" />
+        <View>
+          <Text>
+            URSHILA RANA
+          </Text>
+          <Text>
+            urshilarana96@gmail.com
+          </Text>
+        </View>
       </View>
 
-      <View>
+      <View style={styles.hangoutMeterContainer}>
         <Text>
-          Hanout meter (1/4)
+          Hangout meter (1/4)
         </Text>
-        <View></View>
+        <View style={styles.hangoutMeter}></View>
       </View>
 
       <View style={styles.menuContainer}>
-        <TouchableRipple 
-          style={{width: '100%'}}
-          onPress={() => console.log('available')} 
-        >
-          <Surface style={styles.surfaceButton}>
-            <Text>
-              AVAILABLE
-            </Text>
-          </Surface>
-        </TouchableRipple>
+        <Surface style={{...styles.surfaceButton, flexDirection: 'row', justifyContent: 'space-between'}}>
+          <Text>
+            AVAILABLE
+          </Text>
+          <Switch 
+            value={isAvailable}
+            onValueChange={onToggleAvailable}
+          />
+        </Surface>
 
-        <View style={{ flexDirection: 'row', width: '100%'}}>
+        <View style={{ flexDirection: 'row', width: '100%', gap: 15}}>
           <TouchableRipple
             onPress={() => router.push('/(menu)/preferences')} 
+            style={{flex: 1}}
           >
             <Surface style={styles.surfaceButton}>
               <Text>
@@ -52,7 +71,8 @@ export default function HomeScreen() {
             </Surface>
           </TouchableRipple>
           <TouchableRipple
-            onPress={() => router.push('/(menu)/calendar')}      
+            onPress={() => router.push('/(menu)/calendar')}   
+            style={{flex: 1}}   
           >
             <Surface style={styles.surfaceButton}>
               <Text>
@@ -86,7 +106,8 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     width: '100%',
-    padding: 20
+    padding: 10,
+    gap: 15,
   },
   userInfoContainer: {
     borderWidth: 1,
@@ -94,10 +115,16 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 15
   },
+  hangoutMeterContainer: {
+    width: '100%',
+    paddingVertical: 20,
+    paddingHorizontal: 5,
+  },
   hangoutMeter: {
     padding: 10,
     borderRadius: 15,
-    borderWidth: 1
+    borderWidth: 1,
+    marginTop: 10
   },
   surfaceButton: {
     padding: 30,
