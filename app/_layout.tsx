@@ -1,6 +1,4 @@
-import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import {
   MD3LightTheme as DefaultTheme,
   PaperProvider,
@@ -11,7 +9,7 @@ export default function RootLayout() {
     <PaperProvider theme={DefaultTheme}>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(menu)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(build_hangout)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>

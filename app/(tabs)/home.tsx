@@ -58,30 +58,7 @@ export default function HomeScreen() {
             onValueChange={onToggleAvailable}
           />
         </Surface>
-
-        <View style={{ flexDirection: 'row', width: '100%', gap: 15}}>
-          <TouchableRipple
-            onPress={() => router.push('/(menu)/preferences')} 
-            style={{flex: 1}}
-          >
-            <Surface style={styles.surfaceButton}>
-              <Text>
-                PREFERENCES
-              </Text>
-            </Surface>
-          </TouchableRipple>
-          <TouchableRipple
-            onPress={() => router.push('/(menu)/calendar')}   
-            style={{flex: 1}}   
-          >
-            <Surface style={styles.surfaceButton}>
-              <Text>
-                CALENDAR
-              </Text>
-            </Surface>
-          </TouchableRipple>
-        </View>
-
+        
         <TouchableRipple         
           onPress={() => router.push('/(build_hangout)/invite')} 
         >

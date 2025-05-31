@@ -12,7 +12,7 @@ export default function IndexScreen() {
         LET'S HANG
       </Text>
       <TouchableRipple 
-        onPress={() => router.replace('/(menu)/home')}
+        onPress={() => router.replace('/(tabs)/home')}
         rippleColor='#555555'
       >
         <Surface elevation={2} style={styles.enterSurfaceStyle}>

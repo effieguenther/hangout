@@ -4,11 +4,11 @@ import { View, StyleSheet } from 'react-native';
 import { 
   Text, 
   useTheme, 
-  IconButton, 
   Avatar,
   Searchbar,
   Checkbox,
 } from 'react-native-paper';
+import BuildHangoutNavigator from '@/components/BuildHangoutNavigator';
 
 export default function InviteScreen() {
   const theme = useTheme();
@@ -20,12 +20,6 @@ export default function InviteScreen() {
     {firstName: 'Mamu', lastName: '', initials: 'M', invited: false},
     {firstName: 'Sophie', lastName: 'Wasel', initials: 'SW', invited: false}
   ]);
-  const navigatePrev = () => {
-    console.log("Prev")
-  }
-  const navigateNext = () => {
-    console.log("Next")
-  }
   const toggleInviteContact = (index) => {
     const copy = [...contacts];
     copy[index].invited = !copy[index].invited;
@@ -34,19 +28,7 @@ export default function InviteScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={styles.navContainer}>
-        <IconButton 
-          icon="arrow-left" 
-          size={24} 
-          onPress={navigatePrev}
-        />
-        <Text variant="bodyLarge">MAKE A PLAN</Text>
-        <IconButton 
-          icon="arrow-right" 
-          size={24} 
-          onPress={navigateNext}
-        />
-      </View>
+      <BuildHangoutNavigator currentScreen="/(build_hangout)/invite" />
       <Text variant="headlineLarge" style={{ color: theme.colors.onBackground }}>
         INVITE
       </Text>
@@ -91,12 +73,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     padding: 20,
-  },
-  navContainer: {
-    flexDirection: 'row', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    paddingVertical: 50,
   },
   frequentContactsContainer: {
     flexDirection: 'row',
