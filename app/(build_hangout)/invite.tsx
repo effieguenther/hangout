@@ -1,14 +1,16 @@
 // app/(app)/preferences.js
-import { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { 
-  Text, 
-  useTheme, 
-  Avatar,
-  Searchbar,
-  Checkbox,
-} from 'react-native-paper';
 import BuildHangoutNavigator from '@/components/BuildHangoutNavigator';
+import { router } from 'expo-router';
+import { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import {
+  Avatar,
+  Button,
+  Checkbox,
+  Searchbar,
+  Text,
+  useTheme
+} from 'react-native-paper';
 
 export default function InviteScreen() {
   const theme = useTheme();
@@ -24,6 +26,9 @@ export default function InviteScreen() {
     const copy = [...contacts];
     copy[index].invited = !copy[index].invited;
     setContacts(copy);
+  }
+  const advance = () => {
+    router.push('/(build_hangout)/date');
   }
 
   return (
@@ -63,6 +68,14 @@ export default function InviteScreen() {
             />
           </View>
         ))}
+      </View>
+      <View>
+        <Button 
+          mode="contained"
+          onPress={advance}
+        >
+          CONTINUE
+        </Button>
       </View>
     </View>
   );
