@@ -1,6 +1,6 @@
-import { View, StyleSheet } from "react-native"
-import { Text, IconButton } from "react-native-paper"
 import { router } from "expo-router";
+import { StyleSheet, View } from "react-native";
+import { IconButton, Text } from "react-native-paper";
 
 export default function BuildHangoutNavigator({ currentScreen }) {
   const routeMap = [
@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     justifyContent: 'center', 
     alignItems: 'center', 
-    paddingVertical: 50,
+    paddingTop: 50,
+    paddingBottom: 10
   },
 })
