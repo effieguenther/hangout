@@ -19,7 +19,7 @@ export default function DateScreen() {
     todayTextColor: theme.colors.primary,
     arrowColor: theme.colors.outline
   }
-  const selectOption = (index) => {
+  const selectOption = (index: number) => {
     const copy = [...options];
     copy[index].isSelected = !copy[index].isSelected;
     setOptions(copy);

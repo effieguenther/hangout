@@ -2,81 +2,117 @@
 import BuildHangoutNavigator from '@/components/BuildHangoutNavigator';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import {
   Avatar,
   Button,
   Checkbox,
   Searchbar,
+  Surface,
   Text,
-  useTheme
+  useTheme,
 } from 'react-native-paper';
+
+interface Contact {
+  id: string;
+  firstName: string;
+  lastName: string;
+  initials: string;
+  invited: boolean;
+}
 
 export default function InviteScreen() {
   const theme = useTheme();
   const [searchQuery, setSearchQuery] = useState('')
   const frequentContacts = ['EG', 'JR', 'M', 'SW']
-  const [contacts, setContacts] = useState([
-    {firstName: 'Effie', lastName: 'Guenther', initials: 'EG', invited: false},
-    {firstName: 'Jesselina', lastName: 'Rana', initials: 'JR', invited: false},
-    {firstName: 'Mamu', lastName: '', initials: 'M', invited: false},
-    {firstName: 'Sophie', lastName: 'Wasel', initials: 'SW', invited: false}
+  const [contacts, setContacts] = useState<Contact[]>([
+    {id: '0', firstName: 'Effie', lastName: 'Guenther', initials: 'EG', invited: false},
+    {id: '1', firstName: 'Jesselina', lastName: 'Rana', initials: 'JR', invited: false},
+    {id: '2', firstName: 'Mamu', lastName: '', initials: 'M', invited: false},
+    {id: '3', firstName: 'Sophie', lastName: 'Wasel', initials: 'SW', invited: false}
   ]);
-  const toggleInviteContact = (index) => {
-    const copy = [...contacts];
-    copy[index].invited = !copy[index].invited;
-    setContacts(copy);
+  const [invitedContacts, setInvitedContacts] = useState<Contact[]>([]);
+
+  const toggleInviteContact = (index: number) => {
+    const copyContacts = [...contacts];
+    const toggledContact = { ...copyContacts[index] }
+    copyContacts[index].invited = !toggledContact.invited;
+    
+    if (copyContacts[index].invited) {
+      const copyInvitedContacts = [...invitedContacts];
+      copyInvitedContacts.push(copyContacts[index]);
+      setInvitedContacts(copyInvitedContacts);
+    } else {
+      const copyInvitedContacts = invitedContacts.filter(
+        (contact) => contact.id !== toggledContact.id
+      );
+      setInvitedContacts(copyInvitedContacts);
+    }
+
+    setContacts(copyContacts);
   }
+
   const advance = () => {
     router.push('/(build_hangout)/date');
   }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <BuildHangoutNavigator currentScreen="/(build_hangout)/invite" />
-      <Text variant="headlineLarge" style={{ color: theme.colors.onBackground }}>
-        INVITE
-      </Text>
-      <View style={styles.frequentContactsContainer}>
-        {frequentContacts.map((contact, index) => (
-          <Avatar.Text 
-            key={`frequentContact_${index}`}
-            size={50}
-            label={contact} 
-          />
-        ))}
-      </View>
-      <Searchbar
-        placeholder='Search'
-        onChangeText={setSearchQuery}
-        value={searchQuery}
-        style={{width: '100%'}}
-      />
-      <View style={{width: '100%', padding: 10}}>
-        {contacts.map((contact, index) => (
-          <View style={styles.contactContainer} key={`contact_${index}`}>
+      <View style={{...styles.container, padding: 20}}>
+        <BuildHangoutNavigator currentScreen="/(build_hangout)/invite" />
+        <Text variant="headlineLarge" style={{ color: theme.colors.onBackground }}>
+          INVITE
+        </Text>
+        <View style={styles.frequentContactsContainer}>
+          {frequentContacts.map((contact, index) => (
             <Avatar.Text 
-              size={24}
-              label={contact.initials} 
+              key={`frequentContact_${index}`}
+              size={50}
+              label={contact} 
             />
-            <Text style={{flex: 1}}>
-              {contact.firstName} {contact.lastName}
+          ))}
+        </View>
+        <Searchbar
+          placeholder='Search'
+          onChangeText={setSearchQuery}
+          value={searchQuery}
+          style={{width: '100%'}}
+        />
+        <ScrollView style={{width: '100%', padding: 10}}>
+          {contacts.map((contact, index) => (
+            <View style={styles.contactContainer} key={`contact_${index}`}>
+              <Avatar.Text 
+                size={24}
+                label={contact.initials} 
+              />
+              <Text style={{flex: 1}}>
+                {contact.firstName} {contact.lastName}
+              </Text>
+              <Checkbox.Android
+                status={contact.invited ? 'checked' : 'unchecked'}
+                onPress={() => toggleInviteContact(index)}
+              />
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+      {
+        invitedContacts.length > 0 && (
+          <Surface
+            style={styles.bottomBanner}
+          >
+            <Text>
+              {invitedContacts.length} Selected
             </Text>
-            <Checkbox.Android
-              status={contact.invited ? 'checked' : 'unchecked'}
-              onPress={() => toggleInviteContact(index)}
-            />
-          </View>
-        ))}
-      </View>
-      <View>
-        <Button 
-          mode="contained"
-          onPress={advance}
-        >
-          CONTINUE
-        </Button>
-      </View>
+            <Button
+              onPress={advance}
+              mode='contained'
+            >
+              CONTINUE
+            </Button>
+          </Surface>
+        )
+      }
     </View>
   );
 }
@@ -85,7 +121,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    padding: 20,
+    width: '100%'
   },
   frequentContactsContainer: {
     flexDirection: 'row',
@@ -99,5 +135,14 @@ const styles = StyleSheet.create({
     gap: 20,
     justifyContent: 'space-between',
     alignItems: 'center'
+  },
+  bottomBanner: {
+    width: '100%', 
+    flexDirection: 'row', 
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 40,
+    paddingTop: 15,
+    paddingBottom: 50,
   }
 });

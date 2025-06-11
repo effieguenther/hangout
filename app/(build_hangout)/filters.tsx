@@ -35,17 +35,17 @@ export default function FiltersScreen() {
   const selectedDistanceCount = distanceFilters.filter(d => d.isSelected).length;
   const selectedBudgetCount = budgetFilters.filter(b => b.isSelected).length;
 
-  const selectActivity = (idx) => {
+  const selectActivity = (idx: number) => {
     const copy = [...activityFilters];
     copy[idx].isSelected = !copy[idx].isSelected;
     setActivityFilters(copy);
   }
-  const selectDistance = (idx) => {
+  const selectDistance = (idx: number) => {
     const copy = [...distanceFilters];
     copy[idx].isSelected = !copy[idx].isSelected;
     setDistanceFilters(copy);
   }
-  const selectBudget = (idx) => {
+  const selectBudget = (idx: number) => {
     const copy = [...budgetFilters];
     copy[idx].isSelected = !copy[idx].isSelected;
     setBudgetFilters(copy);
