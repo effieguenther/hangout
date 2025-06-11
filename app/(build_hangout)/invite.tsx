@@ -24,7 +24,6 @@ interface Contact {
 export default function InviteScreen() {
   const theme = useTheme();
   const [searchQuery, setSearchQuery] = useState('')
-  const frequentContacts = ['EG', 'JR', 'M', 'SW']
   const [contacts, setContacts] = useState<Contact[]>([
     {id: '0', firstName: 'Effie', lastName: 'Guenther', initials: 'EG', invited: false},
     {id: '1', firstName: 'Jesselina', lastName: 'Rana', initials: 'JR', invited: false},
@@ -60,18 +59,9 @@ export default function InviteScreen() {
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={{...styles.container, padding: 20}}>
         <BuildHangoutNavigator currentScreen="/(build_hangout)/invite" />
-        <Text variant="headlineLarge" style={{ color: theme.colors.onBackground }}>
+        <Text variant="headlineMedium" style={{ color: theme.colors.onBackground, marginVertical: 20 }}>
           INVITE
         </Text>
-        <View style={styles.frequentContactsContainer}>
-          {frequentContacts.map((contact, index) => (
-            <Avatar.Text 
-              key={`frequentContact_${index}`}
-              size={50}
-              label={contact} 
-            />
-          ))}
-        </View>
         <Searchbar
           placeholder='Search'
           onChangeText={setSearchQuery}
