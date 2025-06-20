@@ -54,10 +54,15 @@ export default function InviteScreen() {
     router.push('/(build_hangout)/date');
   }
 
+  const goBack = () => {
+    updateHangoutData({ invitedContacts });
+    router.push('/(tabs)/home');
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={{...styles.container, padding: 20}}>
-        <BuildHangoutNavigator currentScreen="/(build_hangout)/invite" />
+        <BuildHangoutNavigator onNext={advance} onPrev={goBack} />
         <Text variant="headlineMedium" style={{ color: theme.colors.onBackground, marginVertical: 20 }}>
           INVITE
         </Text>

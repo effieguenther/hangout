@@ -1,38 +1,20 @@
-import { router } from "expo-router";
 import { StyleSheet, View } from "react-native";
 import { IconButton, Text } from "react-native-paper";
 
-export default function BuildHangoutNavigator({ currentScreen }) {
-  const routeMap = [
-    '/(tabs)/home', 
-    '/(build_hangout)/invite',
-    '/(build_hangout)/date',
-    '/(build_hangout)/filters',
-    '/(build_hangout)/result',
-  ]
-  const currentScreenIdx = routeMap.indexOf(currentScreen);
-  const nextDisabled = currentScreenIdx === routeMap.length - 1
-
-  const navigatePrev = () => {
-    router.push(routeMap[currentScreenIdx - 1])
-  }
-  const navigateNext = () => {
-    router.push(routeMap[currentScreenIdx + 1])
-  }
-
+export default function BuildHangoutNavigator({ onNext, onPrev, nextDisabled = false }) {
   return (
     <View style={styles.navContainer}>
       <IconButton 
         icon="arrow-left" 
         size={24} 
-        onPress={navigatePrev}
+        onPress={onPrev}
       />
       <Text variant="bodyLarge">MAKE A PLAN</Text>
       { !nextDisabled && (
         <IconButton 
           icon="arrow-right" 
           size={24} 
-          onPress={navigateNext}
+          onPress={onNext}
         />
       )}
     </View>

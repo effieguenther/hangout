@@ -143,10 +143,15 @@ export default function DateScreen() {
     router.push('/(build_hangout)/filters');
   }
 
+  const goBack = () => {
+    updateHangoutData({ date: markedDays });
+    router.push('/(build_hangout)/invite');
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={{...styles.container, padding: 20}}>
-        <BuildHangoutNavigator currentScreen='/(build_hangout)/date' />
+        <BuildHangoutNavigator onNext={advance} onPrev={goBack} />
         <Text variant="bodySmall" style={{ paddingBottom: 20 }}>
           SELECT ALL THAT APPLY
         </Text>

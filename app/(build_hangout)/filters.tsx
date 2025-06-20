@@ -13,25 +13,29 @@ export default function FiltersScreen() {
   const onPrimaryColor = theme.colors.onPrimary;
   const { hangoutData, updateHangoutData } = useHangoutBuilder();
 
+  const activityIsSelected = (activity: string) => hangoutData?.filters?.activity.find((filter) => filter === activity);
+  const distanceIsSelected = (distance: string) => hangoutData?.filters?.distance.find((filter) => filter === distance);
+  const budgetIsSelected = (budget: string) => hangoutData?.filters?.budget.find((filter) => filter === budget);
+
   const [activityFilters, setActivityFilters] = useState([
-    { value: 'DINNER', isSelected: false}, 
-    { value: 'LUNCH', isSelected: false}, 
-    { value: 'BRUNCH', isSelected: false}, 
-    { value: 'COFFEE', isSelected: false}, 
-    { value: 'PARK', isSelected: false}, 
-    { value: 'DRINKS', isSelected: false}, 
-    { value: 'MY PLACE', isSelected: false}
+    { value: 'DINNER', isSelected: activityIsSelected('DINNER')}, 
+    { value: 'LUNCH', isSelected: activityIsSelected('LUNCH')}, 
+    { value: 'BRUNCH', isSelected: activityIsSelected('BRUNCH')}, 
+    { value: 'COFFEE', isSelected: activityIsSelected('COFFEE')}, 
+    { value: 'PARK', isSelected: activityIsSelected('PARK')}, 
+    { value: 'DRINKS', isSelected: activityIsSelected('DRINKS')}, 
+    { value: 'MY PLACE', isSelected: activityIsSelected('MY PLACE')}
   ]);
   const [distanceFilters, setDistanceFilters] = useState([
-    { value: 'UP TO 15 MINS AWAY', isSelected: false}, 
-    { value: 'UP TO 30 MINS AWAY', isSelected: false},
-    { value: 'UP TO 60 MINS AWAY', isSelected: false},
-    { value: 'FIND A MIDPOINT', isSelected: false}
+    { value: 'UP TO 15 MINS AWAY', isSelected: distanceIsSelected('UP TO 15 MINS AWAY')}, 
+    { value: 'UP TO 30 MINS AWAY', isSelected: distanceIsSelected('UP TO 30 MINS AWAY')},
+    { value: 'UP TO 60 MINS AWAY', isSelected: distanceIsSelected('UP TO 60 MINS AWAY')},
+    { value: 'FIND A MIDPOINT', isSelected: distanceIsSelected('FIND A MIDPOINT')}
   ]);
   const [budgetFilters, setBudgetFilters] = useState([
-    { value: "$", isSelected: false },
-    { value: "$$", isSelected: false },
-    { value: "$$$", isSelected: false },
+    { value: "$", isSelected: budgetIsSelected("$") },
+    { value: "$$", isSelected: budgetIsSelected("$$") },
+    { value: "$$$", isSelected: budgetIsSelected("$$$") },
   ]);
 
   const selectedActivityCount = activityFilters.filter(a => a.isSelected).length;
@@ -53,22 +57,31 @@ export default function FiltersScreen() {
     copy[idx].isSelected = !copy[idx].isSelected;
     setBudgetFilters(copy);
   }
-  const advance = () => {
+  const prepareFilterData = () => {
     const activityArr = activityFilters.filter(activity => activity.isSelected).map(activity => activity.value);
     const distanceArr = distanceFilters.filter(distance => distance.isSelected).map(distance => distance.value);
     const budgetArr = budgetFilters.filter(budget => budget.isSelected).map(budget => budget.value);
-    const filters = {
+    return {
       activity: activityArr.length > 0 ? activityArr : [],
       distance: distanceArr.length > 0 ? distanceArr : [],
       budget: budgetArr.length > 0 ? budgetArr : []
     }
+  }
+  const advance = () => {
+    const filters = prepareFilterData();
     updateHangoutData({ filters });
     router.push('/(build_hangout)/result');
   }
 
+  const goBack = () => {
+    const filters = prepareFilterData();
+    updateHangoutData({ filters });
+    router.push('/(build_hangout)/date');
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <BuildHangoutNavigator currentScreen='/(build_hangout)/filters' />
+      <BuildHangoutNavigator onNext={advance} onPrev={goBack} />
       <ScrollView style={{width: '100%', padding: 20}} contentContainerStyle={{alignItems: 'center'}}>
         <Text variant="bodyMedium">
           ALL SET?
