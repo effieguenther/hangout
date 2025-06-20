@@ -1,5 +1,6 @@
 // app/(app)/preferences.js
 import BuildHangoutNavigator from '@/components/BuildHangoutNavigator';
+import { useHangoutBuilder } from '@/context/BuildHangoutContext';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -18,40 +19,38 @@ interface Contact {
   firstName: string;
   lastName: string;
   initials: string;
-  invited: boolean;
 }
 
 export default function InviteScreen() {
   const theme = useTheme();
+  const { hangoutData, updateHangoutData } = useHangoutBuilder();
   const [searchQuery, setSearchQuery] = useState('')
   const [contacts, setContacts] = useState<Contact[]>([
-    {id: '0', firstName: 'Effie', lastName: 'Guenther', initials: 'EG', invited: false},
-    {id: '1', firstName: 'Jesselina', lastName: 'Rana', initials: 'JR', invited: false},
-    {id: '2', firstName: 'Mamu', lastName: '', initials: 'M', invited: false},
-    {id: '3', firstName: 'Sophie', lastName: 'Wasel', initials: 'SW', invited: false}
+    {id: '0', firstName: 'Effie', lastName: 'Guenther', initials: 'EG'},
+    {id: '1', firstName: 'Jesselina', lastName: 'Rana', initials: 'JR'},
+    {id: '2', firstName: 'Mamu', lastName: '', initials: 'M'},
+    {id: '3', firstName: 'Sophie', lastName: 'Wasel', initials: 'SW'}
   ]);
-  const [invitedContacts, setInvitedContacts] = useState<Contact[]>([]);
+  const [invitedContacts, setInvitedContacts] = useState<Contact[]>(hangoutData.invitedContacts || []);
+  
+  const toggleInviteContact = (contact: Contact) => {
+    const isAlreadyInvited = invitedContacts.some(
+      (invited) => invited.id === contact.id
+    );
+    let updatedInvitedContacts: Contact[];
 
-  const toggleInviteContact = (index: number) => {
-    const copyContacts = [...contacts];
-    const toggledContact = { ...copyContacts[index] }
-    copyContacts[index].invited = !toggledContact.invited;
-    
-    if (copyContacts[index].invited) {
-      const copyInvitedContacts = [...invitedContacts];
-      copyInvitedContacts.push(copyContacts[index]);
-      setInvitedContacts(copyInvitedContacts);
-    } else {
-      const copyInvitedContacts = invitedContacts.filter(
-        (contact) => contact.id !== toggledContact.id
+    if (isAlreadyInvited) {
+      updatedInvitedContacts = invitedContacts.filter(
+        (invited) => invited.id !== contact.id
       );
-      setInvitedContacts(copyInvitedContacts);
+    } else {
+      updatedInvitedContacts = [...invitedContacts, contact];
     }
-
-    setContacts(copyContacts);
-  }
+    setInvitedContacts(updatedInvitedContacts);
+  };
 
   const advance = () => {
+    updateHangoutData({ invitedContacts });
     router.push('/(build_hangout)/date');
   }
 
@@ -79,8 +78,8 @@ export default function InviteScreen() {
                 {contact.firstName} {contact.lastName}
               </Text>
               <Checkbox.Android
-                status={contact.invited ? 'checked' : 'unchecked'}
-                onPress={() => toggleInviteContact(index)}
+                status={invitedContacts.some((invited) => invited.id === contact.id) ? 'checked' : 'unchecked'}
+                onPress={() => toggleInviteContact(contact)}
               />
             </View>
           ))}

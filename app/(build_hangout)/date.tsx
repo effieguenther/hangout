@@ -1,10 +1,11 @@
-// app/(app)/preferences.js
 import BuildHangoutNavigator from '@/components/BuildHangoutNavigator';
+import { useHangoutBuilder } from '@/context/BuildHangoutContext';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { Button, Surface, Text, TouchableRipple, useTheme } from 'react-native-paper';
+
 
 interface MarkedDay {
   dateString: string;
@@ -17,6 +18,7 @@ interface MarkedDay {
 
 export default function DateScreen() {
   const theme = useTheme();
+  const { hangoutData, updateHangoutData } = useHangoutBuilder();
 
   const getTodayDateString = () => {
     const todayDate = new Date();
@@ -28,7 +30,7 @@ export default function DateScreen() {
 
   const [selectedDay, setSelectedDay] = useState<string>(getTodayDateString());
 
-  const [markedDays, setMarkedDays] = useState<MarkedDay[]>([]);
+  const [markedDays, setMarkedDays] = useState<MarkedDay[]>(hangoutData.date || []);
   const [options, setOptions] = useState([
     { value: 'MORNING', isSelected: false },
     { value: 'AFTERNOON', isSelected: false },
@@ -137,6 +139,7 @@ export default function DateScreen() {
   };
 
   const advance = () => {
+    updateHangoutData({ date: markedDays });
     router.push('/(build_hangout)/filters');
   }
 

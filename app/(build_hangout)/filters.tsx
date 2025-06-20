@@ -1,4 +1,6 @@
 import BuildHangoutNavigator from '@/components/BuildHangoutNavigator';
+import { useHangoutBuilder } from '@/context/BuildHangoutContext';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Badge, List, Surface, Text, TouchableRipple, useTheme } from 'react-native-paper';
@@ -9,6 +11,7 @@ export default function FiltersScreen() {
   const onBackgroundColor = theme.colors.onBackground;
   const primaryColor = theme.colors.primary;
   const onPrimaryColor = theme.colors.onPrimary;
+  const { hangoutData, updateHangoutData } = useHangoutBuilder();
 
   const [activityFilters, setActivityFilters] = useState([
     { value: 'DINNER', isSelected: false}, 
@@ -50,16 +53,17 @@ export default function FiltersScreen() {
     copy[idx].isSelected = !copy[idx].isSelected;
     setBudgetFilters(copy);
   }
-  const generatePlan = () => {
+  const advance = () => {
     const activityArr = activityFilters.filter(activity => activity.isSelected).map(activity => activity.value);
     const distanceArr = distanceFilters.filter(distance => distance.isSelected).map(distance => distance.value);
     const budgetArr = budgetFilters.filter(budget => budget.isSelected).map(budget => budget.value);
     const filters = {
-      activity: activityArr.length > 0 ? activityArr : null,
-      distance: distanceArr.length > 0 ? distanceArr : null,
-      budget: budgetArr.length > 0 ? budgetArr : null
+      activity: activityArr.length > 0 ? activityArr : [],
+      distance: distanceArr.length > 0 ? distanceArr : [],
+      budget: budgetArr.length > 0 ? budgetArr : []
     }
-    console.log(filters);
+    updateHangoutData({ filters });
+    router.push('/(build_hangout)/result');
   }
 
   return (
@@ -69,10 +73,10 @@ export default function FiltersScreen() {
         <Text variant="bodyMedium">
           ALL SET?
         </Text>
-        <TouchableRipple onPress={generatePlan}>
+        <TouchableRipple onPress={advance}>
           <Surface style={{ ...styles.generatePlan, backgroundColor: theme.colors.primary }}>
             <Text variant="headlineLarge" style={{ color: theme.colors.onPrimary, textAlign: 'center' }}>
-              GENERATE{"\n"}PLAN
+              CONTINUE
             </Text>
           </Surface>
         </TouchableRipple>
@@ -98,7 +102,11 @@ export default function FiltersScreen() {
               <View style={styles.listItemContainer}>
                 {
                   activityFilters.map((activity, idx) => (
-                    <TouchableRipple style={{width: '48%', borderRadius: 30, overflow: 'hidden'}} onPress={() => selectActivity(idx)}>
+                    <TouchableRipple 
+                      style={{width: '48%', borderRadius: 30, overflow: 'hidden'}} 
+                      onPress={() => selectActivity(idx)}
+                      key={`activity_${idx}`}
+                    >
                       <List.Item 
                         key={`activity_item_${idx}`} 
                         title={activity.value} 
@@ -133,7 +141,11 @@ export default function FiltersScreen() {
               <View style={styles.listItemContainer}>
                 {
                   distanceFilters.map((distance, idx) => (
-                    <TouchableRipple style={{width: '100%', borderRadius: 30, overflow: 'hidden'}} onPress={() => selectDistance(idx)}>
+                    <TouchableRipple 
+                      style={{width: '100%', borderRadius: 30, overflow: 'hidden'}} 
+                      onPress={() => selectDistance(idx)}
+                      key={`distance_${idx}`}
+                    >
                       <List.Item 
                         key={`distance_item_${idx}`} 
                         title={distance.value} 
@@ -168,7 +180,11 @@ export default function FiltersScreen() {
               <View style={styles.listItemContainer}>
                 {
                   budgetFilters.map((budget, idx) => (
-                    <TouchableRipple style={{width: '100%', borderRadius: 30, overflow: 'hidden'}} onPress={() => selectBudget(idx)}>
+                    <TouchableRipple 
+                      style={{width: '100%', borderRadius: 30, overflow: 'hidden'}} 
+                      onPress={() => selectBudget(idx)}
+                      key={`budget_${idx}`}
+                    >
                       <List.Item 
                         key={`budget_item_${idx}`} 
                         title={budget.value} 
