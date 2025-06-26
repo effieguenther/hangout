@@ -1,4 +1,3 @@
-// app/(app)/preferences.js
 import BuildHangoutNavigator from '@/components/BuildHangoutNavigator';
 import { router } from 'expo-router';
 import React from 'react';
@@ -8,7 +7,7 @@ import { Text, useTheme } from 'react-native-paper';
 export default function ResultScreen() {
   const theme = useTheme();
   const onPrev = () => {
-    router.push('/(build_hangout)/filters');
+    router.push('/(build_hangout)/review');
   }
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>

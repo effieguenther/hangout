@@ -1,7 +1,7 @@
 import { StyleSheet, View } from "react-native";
 import { IconButton, Text } from "react-native-paper";
 
-export default function BuildHangoutNavigator({ onNext, onPrev, nextDisabled = false }) {
+export default function BuildHangoutNavigator({ onNext = () => {}, onPrev = () => {}, nextDisabled = false }) {
   return (
     <View style={styles.navContainer}>
       <IconButton 

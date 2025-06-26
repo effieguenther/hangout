@@ -67,10 +67,10 @@ export default function FiltersScreen() {
       budget: budgetArr.length > 0 ? budgetArr : []
     }
   }
-  const advance = () => {
+  const onNext = () => {
     const filters = prepareFilterData();
     updateHangoutData({ filters });
-    router.push('/(build_hangout)/result');
+    router.push('/(build_hangout)/review');
   }
 
   const goBack = () => {
@@ -81,13 +81,13 @@ export default function FiltersScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <BuildHangoutNavigator onNext={advance} onPrev={goBack} />
+      <BuildHangoutNavigator onNext={onNext} onPrev={goBack} />
       <ScrollView style={{width: '100%', padding: 20}} contentContainerStyle={{alignItems: 'center'}}>
         <Text variant="bodyMedium">
           ALL SET?
         </Text>
-        <TouchableRipple onPress={advance}>
-          <Surface style={{ ...styles.generatePlan, backgroundColor: theme.colors.primary }}>
+        <TouchableRipple onPress={onNext}>
+          <Surface style={{ ...styles.continue, backgroundColor: theme.colors.primary }}>
             <Text variant="headlineLarge" style={{ color: theme.colors.onPrimary, textAlign: 'center' }}>
               CONTINUE
             </Text>
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  generatePlan: {
+  continue: {
     padding: 20,
     marginTop: 20,
     marginBottom: 40,

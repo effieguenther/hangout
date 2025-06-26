@@ -12,6 +12,7 @@ export default function FlowLayout() {
         <Stack.Screen name="invite" options={{ headerShown: false }} />
         <Stack.Screen name="date" options={{ headerShown: false }} />
         <Stack.Screen name="filters" options={{ headerShown: false }} />
+        <Stack.Screen name="review" options={{ headerShown: false }} />
         <Stack.Screen name="result" options={{ headerShown: false }} />
       </Stack>
     </HangoutBuilderProvider>
