@@ -1,32 +1,5 @@
+import { HangoutData } from '@/types/hangoutData';
 import React, { createContext, ReactNode, useContext, useState } from 'react';
-
-interface MarkedDay {
-  dateString: string;
-  morning: boolean;
-  afternoon: boolean;
-  evening: boolean;
-  dotColor?: string;
-  selectedDotColor?: string;
-}
-
-interface Contact {
-  id: string;
-  firstName: string;
-  lastName: string;
-  initials: string;
-}
-
-interface Filters {
-  activity: string[];
-  distance: string[];
-  budget: string[];
-}
-
-interface HangoutData {
-  date?: MarkedDay[];
-  invitedContacts?: Contact[];
-  filters?: Filters;
-}
 
 interface HangoutContextType {
   hangoutData: HangoutData;
