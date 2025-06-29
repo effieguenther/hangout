@@ -1,5 +1,6 @@
 import BuildHangoutNavigator from '@/components/BuildHangoutNavigator';
 import { useHangoutBuilder } from '@/context/BuildHangoutContext';
+import { GoogleGenAI } from '@google/genai';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -9,6 +10,17 @@ export default function ResultScreen() {
   const theme = useTheme();
   const { hangoutData } = useHangoutBuilder();
   const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const userInfo = {
+    age: 29,
+    gender: 'female'
+  }
+  const hangoutInfo = {
+    dates: hangoutData.date,
+    activity: hangoutData.filters?.activity
+  }
 
   const onPrev = () => {
     router.push('/(build_hangout)/review');
@@ -57,12 +69,45 @@ export default function ResultScreen() {
 
   const getGeminiRecs = async () => {
     const data = await getGoogleMapsData();
+    if (data.places && data.places.length > 3) {
+      try {
+        const ai = new GoogleGenAI({apiKey: process.env.EXPO_PUBLIC_GEMINI_API_KEY});
+        const prompt = `
+          Analyze the following three JSON objects:
+            1.  **User Information**: ${JSON.stringify(userInfo)}
+            2.  **Hangout Details**: ${JSON.stringify(hangoutInfo)}
+            3.  **Available Places**: ${JSON.stringify(data.places)}
+          
+          Based on all the provided data, act as a recommendation engine. Your task is to select the top 3 places from the "Available Places" list that best match the "User Information" and "Hangout Details".
+
+          Consider the following criteria for your selection:
+          - The places must be open at the specified date and time.
+          - The type of place must be appropriate for the specified activity.
+          - The choice should align with the user's preferences.
+
+          Your response MUST be a valid JSON array containing the 3 selected place objects.
+        `
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.0-flash-001',
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          config: {
+            responseMimeType: "application/json",
+          }
+        })
+        const aiResponseText = response.candidates[0].content?.parts[0].text;
+        const parsedResults = JSON.parse(aiResponseText);
+        setResults(parsedResults);
+
+      } catch (error) {
+        console.error(error);
+      }
+    }
   }
 
   useEffect(() => {
     console.log("USE EFFECT")
     if (hangoutData) {
-      getGoogleMapsData();
+      getGeminiRecs();
     }
   }, [hangoutData])
 
