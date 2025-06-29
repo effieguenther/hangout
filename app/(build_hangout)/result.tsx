@@ -4,9 +4,16 @@ import { useHangoutBuilder } from '@/context/BuildHangoutContext';
 import { Place } from '@/types/place';
 import { GoogleGenAI } from '@google/genai';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Text, useTheme } from 'react-native-paper';
+import { useSharedValue } from "react-native-reanimated";
+import Carousel, {
+  ICarouselInstance,
+  Pagination,
+} from "react-native-reanimated-carousel";
+
+const CONTAINER_PADDING = 20;
 
 export default function ResultScreen() {
   const theme = useTheme();
@@ -24,9 +31,15 @@ export default function ResultScreen() {
     dates: hangoutData.date,
     activity: hangoutData.filters?.activity
   }
-  const { width: screenWidth } = Dimensions.get('window');
-  const CARD_WIDTH = screenWidth * 0.8;
-  const SPACING = screenWidth * 0.05;
+  const screenWidth = Dimensions.get('window').width;
+  const ref = useRef<ICarouselInstance>(null);
+  const progress = useSharedValue<number>(0);
+  const onPressPagination = (index: number) => {
+    ref.current?.scrollTo({
+      count: index - progress.value,
+      animated: true,
+    });
+  };
 
   const onPrev = () => {
     router.push('/(build_hangout)/review');
@@ -279,13 +292,7 @@ export default function ResultScreen() {
     }
   }, [hangoutData])
 
-  if (loading) {
-    return (
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <ActivityIndicator animating={true} size='large' />
-      </View>
-    )
-  } else if (!loading && error) {
+  if (!loading && error) {
     return (
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <BuildHangoutNavigator onPrev={onPrev} nextDisabled={true} />
@@ -296,26 +303,50 @@ export default function ResultScreen() {
         </View>
       </View>
     )
-  } else {
+  } else if (!loading && !error && screenWidth) {
     return (
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <BuildHangoutNavigator onPrev={onPrev} nextDisabled={true} />
-        <View style={{ flex: 1 }}>
-          {
-            results.map((place, idx) => (
-              <ResultCard key={`result_${idx}`} place={place} />
-            ))
-          }
+        <View style={styles.carouselWrapper}>
+          <Carousel
+            ref={ref}
+            width={screenWidth - (CONTAINER_PADDING * 2)}
+            height={undefined}
+            data={results}
+            onProgressChange={progress}
+            renderItem={({item, index}) => (
+              <ResultCard key={`result_${index}`} place={item} />
+            )}
+          />
+    
+          <Pagination.Basic
+            progress={progress}
+            data={results}
+            dotStyle={{ backgroundColor: "rgba(0,0,0,0.2)", borderRadius: 50 }}
+            containerStyle={{ gap: 5, marginTop: 10 }}
+            onPress={onPressPagination}
+          />
         </View>
       </View>
     )
-  }
+  } else {
+    return (
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <ActivityIndicator animating={true} size='large' />
+      </View>
+    )
+  } 
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    padding: 20,
+    padding: CONTAINER_PADDING,
   },
+  carouselWrapper: {
+    flex: 1, 
+    width: '100%', 
+    marginBottom: 60 
+  }
 });
