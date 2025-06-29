@@ -10,9 +10,9 @@ export interface ITextObject {
  * Interface for a more complex text object that includes a URI.
  */
 export interface ITextObjectWithUri extends ITextObject {
-  flagContentUri?: string; // Optional property
+  flagContentUri?: string;
   disclosureText?: ITextObject;
-  reviewsUri?: string; // Optional property
+  reviewsUri?: string;
 }
 
 /**
@@ -24,6 +24,11 @@ export interface IGenerativeSummary {
   disclosureText: ITextObject;
 }
 
+export interface Location {
+  latitude: number;
+  longitude: number;
+}
+
 /**
  * Represents the main interface for a Place object.
  */
@@ -31,25 +36,27 @@ export interface Place {
   id: string;
   types: string[];
   rating: number;
-  priceLevel?: string; // Optional as it's not in all objects
+  priceLevel?: string;
   userRatingCount: number;
   displayName: ITextObject;
-  dineIn?: boolean; // Optional property
-  servesLunch?: boolean; // Optional property
-  servesDinner?: boolean; // Optional property
+  dineIn?: boolean;
+  servesLunch?: boolean;
+  servesDinner?: boolean;
   servesBeer: boolean;
   servesWine: boolean;
   primaryType: string;
-  editorialSummary?: ITextObject; // Optional property
+  editorialSummary?: ITextObject;
   outdoorSeating: boolean;
   liveMusic: boolean;
   servesCocktails: boolean;
-  servesDessert?: boolean; // Optional property
-  servesCoffee?: boolean; // Optional property
-  goodForChildren?: boolean; // Optional property
+  servesDessert?: boolean;
+  servesCoffee?: boolean;
+  goodForChildren?: boolean;
   goodForGroups: boolean;
-  goodForWatchingSports?: boolean; // Optional property
-  generativeSummary?: IGenerativeSummary; // Optional property
+  goodForWatchingSports?: boolean;
+  generativeSummary?: IGenerativeSummary;
+  location?: Location;
+  formattedAddress?: String;
   reviewSummary?: {
     text: ITextObjectWithUri;
     flagContentUri: string;
