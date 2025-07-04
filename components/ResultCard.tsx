@@ -197,7 +197,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     width: '100%',
-    rowGap: 20
+    rowGap: 20,
+    height: '100%'
   },
   titleContainer: {
     flexDirection: 'row',

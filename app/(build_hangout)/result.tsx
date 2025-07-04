@@ -31,6 +31,30 @@ export default function ResultScreen() {
     dates: hangoutData.date,
     activity: hangoutData.filters?.activity
   }
+  const getIncludedTypes = () => {
+    const types: string[] = [];
+    const activities = hangoutData.filters?.activity
+    if (activities && activities.length > 0) {
+      activities.forEach(activity => {
+        if (activity === 'DINNER' || activity === 'LUNCH' || activity === 'BRUNCH') {
+          if (!types.includes('restaurant')) {
+            types.push('restaurant');
+          }
+        }
+        if (activity === 'DRINKS') {
+          types.push('bar');
+        }
+        if (activity === 'COFFEE') {
+          types.push('cafe');
+          types.push('coffee_shop')
+        }
+        if (activity === 'PARK') {
+          types.push('park');
+        }
+      })
+    }
+    return types;
+  }
   const screenWidth = Dimensions.get('window').width;
   const ref = useRef<ICarouselInstance>(null);
   const progress = useSharedValue<number>(0);
@@ -47,14 +71,15 @@ export default function ResultScreen() {
 
   const getGoogleMapsData = async () => {
     const userLocation = {latitude: 40.726113, longitude: -73.952996};
+    const types = getIncludedTypes();
     const URL = `https://places.googleapis.com/v1/places:searchNearby?key=${process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}`
     const body = {
-      "includedTypes": ["bar"],
+      "includedTypes": types,
       "maxResultCount": 20,
       "locationRestriction": {
         "circle": {
           "center": userLocation,
-          "radius": 500
+          "radius": 1000
         }
       }
     }
@@ -137,158 +162,157 @@ export default function ResultScreen() {
   }
 
   useEffect(() => {
-    console.log("USE EFFECT")
     if (hangoutData) {
-      // getGeminiRecs();
-      const places = [
-        {
-          "id": "ChIJfyLfzJxZwokRUj6cyb40ClY",
-          "types": [
-            "bar_and_grill",
-            "bar",
-            "restaurant",
-            "food",
-            "point_of_interest",
-            "establishment"
-          ],
-          "rating": 4.4,
-          "userRatingCount": 563,
-          "displayName": {
-            "text": "Bk Backyard Bar",
-            "languageCode": "en"
-          },
-          "dineIn": true,
-          "servesLunch": true,
-          "servesDinner": true,
-          "servesBeer": true,
-          "servesWine": true,
-          "primaryType": "bar_and_grill",
-          "editorialSummary": {
-            "text": "Buzzing alfresco hangout whipping up burgers & finger foods, plus cocktails & draft beer.",
-            "languageCode": "en"
-          },
-          "outdoorSeating": true,
-          "liveMusic": true,
-          "servesCocktails": true,
-          "servesDessert": true,
-          "servesCoffee": true,
-          "goodForChildren": true,
-          "goodForGroups": true,
-          "goodForWatchingSports": true,
-          "generativeSummary": {
-            "overview": {
-              "text": "Spacious venue with picnic tables and a beach volleyball court, featuring DJs, sports on TV, and live music.",
-              "languageCode": "en-US"
-            },
-            "overviewFlagContentUri": "https://www.google.com/local/review/rap/report?postId=CiUweDg5YzI1OTljY2NkZjIyN2Y6MHg1NjBhMzRiZWM5OWMzZTUyMAI&d=17924085&t=12",
-            "disclosureText": {
-              "text": "Summarized with Gemini",
-              "languageCode": "en-US"
-            }
-          },
-          "reviewSummary": {
-            "text": {
-              "text": "People say this bar and grill offers great drinks, games, and live music. They also highlight the fun, lively, and welcoming atmosphere, and the friendly and attentive bartenders.\n\nOther reviews mention the drinks can be expensive.",
-              "languageCode": "en-US"
-            },
-            "flagContentUri": "https://www.google.com/local/review/rap/report?postId=5%401:CAIQACodChtyc19oOkRveHhBOFpWTDNBZEU3NGlncFRSZ1E%7CCAIQACoqChtyc19oOkRveHhBOFpWTDNBZEU3NGlncFRSZ1ESCwju3_XCBhDm9rkb&d=17924085&t=8",
-            "disclosureText": {
-              "text": "Summarized with Gemini",
-              "languageCode": "en-US"
-            },
-            "reviewsUri": "https://www.google.com/maps/place//data=!4m4!3m3!1s0x89c2599cccdf227f:0x560a34bec99c3e52!9m1!1b1"
-          }
-        },
-        {
-          "id": "ChIJhZwYPkNZwokR5br0SgJqx2o",
-          "types": [
-            "bar",
-            "point_of_interest",
-            "establishment"
-          ],
-          "rating": 4.3,
-          "priceLevel": "PRICE_LEVEL_MODERATE",
-          "userRatingCount": 960,
-          "displayName": {
-            "text": "The Gutter",
-            "languageCode": "en"
-          },
-          "dineIn": true,
-          "servesBeer": true,
-          "servesWine": true,
-          "primaryType": "bar",
-          "editorialSummary": {
-            "text": "Old-school, low-tech bowling alley with an attached barroom that hosts live music.",
-            "languageCode": "en"
-          },
-          "outdoorSeating": true,
-          "liveMusic": true,
-          "servesCocktails": true,
-          "goodForGroups": true,
-          "goodForWatchingSports": true,
-          "reviewSummary": {
-            "text": {
-              "text": "People say this bar offers bowling and drinks. They also highlight the authentic experience, fun atmosphere, and friendly staff.\n\nSome reviews mention there can be a long wait.",
-              "languageCode": "en-US"
-            },
-            "flagContentUri": "https://www.google.com/local/review/rap/report?postId=5%401:CAIQACodChtyc19oOkdBaGtGSmFXbWxzRmhOMUpFZkpocHc%7CCAIQACorChtyc19oOkdBaGtGSmFXbWxzRmhOMUpFZkpocHcSDAiW6vXCBhCq2KKgAw&d=17924085&t=8",
-            "disclosureText": {
-              "text": "Summarized with Gemini",
-              "languageCode": "en-US"
-            },
-            "reviewsUri": "https://www.google.com/maps/place//data=!4m4!3m3!1s0x89c259433e189c85:0x6ac76a024af4bae5!9m1!1b1"
-          }
-        },
-        {
-          "id": "ChIJofE6JSBZwokRkOG-yB0pXns",
-          "types": [
-            "bar",
-            "point_of_interest",
-            "establishment"
-          ],
-          "rating": 4.3,
-          "userRatingCount": 228,
-          "displayName": {
-            "text": "Twins Lounge",
-            "languageCode": "en"
-          },
-          "dineIn": true,
-          "servesBeer": true,
-          "servesWine": true,
-          "primaryType": "bar",
-          "outdoorSeating": true,
-          "liveMusic": false,
-          "servesCocktails": true,
-          "goodForChildren": false,
-          "goodForGroups": true,
-          "goodForWatchingSports": false,
-          "generativeSummary": {
-            "overview": {
-              "text": "Mid-century modern-style bar offering beer, cocktails, pool tables, and a patio.",
-              "languageCode": "en-US"
-            },
-            "overviewFlagContentUri": "https://www.google.com/local/review/rap/report?postId=CiUweDg5YzI1OTIwMjUzYWYxYTE6MHg3YjVlMjkxZGM4YmVlMTkwMAI&d=17924085&t=12",
-            "disclosureText": {
-              "text": "Summarized with Gemini",
-              "languageCode": "en-US"
-            }
-          },
-          "reviewSummary": {
-            "text": {
-              "text": "People say this bar offers cheap and tasty drinks, including a solid Old Fashioned and a spicy margarita. They also highlight the cozy atmosphere, cool decoration, and the presence of pool tables and a photo booth.\n\nOther reviews mention the bartenders can be unfriendly.",
-              "languageCode": "en-US"
-            },
-            "flagContentUri": "https://www.google.com/local/review/rap/report?postId=5%401:CAIQACodChtyc19oOk1PcS1DLU56cTBwZmJLX2ZsMGJwUFE%7CCAIQACoqChtyc19oOk1PcS1DLU56cTBwZmJLX2ZsMGJwUFESCwjLjuvCBhDE0PIa&d=17924085&t=8",
-            "disclosureText": {
-              "text": "Summarized with Gemini",
-              "languageCode": "en-US"
-            },
-            "reviewsUri": "https://www.google.com/maps/place//data=!4m4!3m3!1s0x89c25920253af1a1:0x7b5e291dc8bee190!9m1!1b1"
-          }
-        }
-      ];
-      setResults(places);
-      setLoading(false);
+      getGeminiRecs();
+      // const places = [
+      //   {
+      //     "id": "ChIJfyLfzJxZwokRUj6cyb40ClY",
+      //     "types": [
+      //       "bar_and_grill",
+      //       "bar",
+      //       "restaurant",
+      //       "food",
+      //       "point_of_interest",
+      //       "establishment"
+      //     ],
+      //     "rating": 4.4,
+      //     "userRatingCount": 563,
+      //     "displayName": {
+      //       "text": "Bk Backyard Bar",
+      //       "languageCode": "en"
+      //     },
+      //     "dineIn": true,
+      //     "servesLunch": true,
+      //     "servesDinner": true,
+      //     "servesBeer": true,
+      //     "servesWine": true,
+      //     "primaryType": "bar_and_grill",
+      //     "editorialSummary": {
+      //       "text": "Buzzing alfresco hangout whipping up burgers & finger foods, plus cocktails & draft beer.",
+      //       "languageCode": "en"
+      //     },
+      //     "outdoorSeating": true,
+      //     "liveMusic": true,
+      //     "servesCocktails": true,
+      //     "servesDessert": true,
+      //     "servesCoffee": true,
+      //     "goodForChildren": true,
+      //     "goodForGroups": true,
+      //     "goodForWatchingSports": true,
+      //     "generativeSummary": {
+      //       "overview": {
+      //         "text": "Spacious venue with picnic tables and a beach volleyball court, featuring DJs, sports on TV, and live music.",
+      //         "languageCode": "en-US"
+      //       },
+      //       "overviewFlagContentUri": "https://www.google.com/local/review/rap/report?postId=CiUweDg5YzI1OTljY2NkZjIyN2Y6MHg1NjBhMzRiZWM5OWMzZTUyMAI&d=17924085&t=12",
+      //       "disclosureText": {
+      //         "text": "Summarized with Gemini",
+      //         "languageCode": "en-US"
+      //       }
+      //     },
+      //     "reviewSummary": {
+      //       "text": {
+      //         "text": "People say this bar and grill offers great drinks, games, and live music. They also highlight the fun, lively, and welcoming atmosphere, and the friendly and attentive bartenders.\n\nOther reviews mention the drinks can be expensive.",
+      //         "languageCode": "en-US"
+      //       },
+      //       "flagContentUri": "https://www.google.com/local/review/rap/report?postId=5%401:CAIQACodChtyc19oOkRveHhBOFpWTDNBZEU3NGlncFRSZ1E%7CCAIQACoqChtyc19oOkRveHhBOFpWTDNBZEU3NGlncFRSZ1ESCwju3_XCBhDm9rkb&d=17924085&t=8",
+      //       "disclosureText": {
+      //         "text": "Summarized with Gemini",
+      //         "languageCode": "en-US"
+      //       },
+      //       "reviewsUri": "https://www.google.com/maps/place//data=!4m4!3m3!1s0x89c2599cccdf227f:0x560a34bec99c3e52!9m1!1b1"
+      //     }
+      //   },
+      //   {
+      //     "id": "ChIJhZwYPkNZwokR5br0SgJqx2o",
+      //     "types": [
+      //       "bar",
+      //       "point_of_interest",
+      //       "establishment"
+      //     ],
+      //     "rating": 4.3,
+      //     "priceLevel": "PRICE_LEVEL_MODERATE",
+      //     "userRatingCount": 960,
+      //     "displayName": {
+      //       "text": "The Gutter",
+      //       "languageCode": "en"
+      //     },
+      //     "dineIn": true,
+      //     "servesBeer": true,
+      //     "servesWine": true,
+      //     "primaryType": "bar",
+      //     "editorialSummary": {
+      //       "text": "Old-school, low-tech bowling alley with an attached barroom that hosts live music.",
+      //       "languageCode": "en"
+      //     },
+      //     "outdoorSeating": true,
+      //     "liveMusic": true,
+      //     "servesCocktails": true,
+      //     "goodForGroups": true,
+      //     "goodForWatchingSports": true,
+      //     "reviewSummary": {
+      //       "text": {
+      //         "text": "People say this bar offers bowling and drinks. They also highlight the authentic experience, fun atmosphere, and friendly staff.\n\nSome reviews mention there can be a long wait.",
+      //         "languageCode": "en-US"
+      //       },
+      //       "flagContentUri": "https://www.google.com/local/review/rap/report?postId=5%401:CAIQACodChtyc19oOkdBaGtGSmFXbWxzRmhOMUpFZkpocHc%7CCAIQACorChtyc19oOkdBaGtGSmFXbWxzRmhOMUpFZkpocHcSDAiW6vXCBhCq2KKgAw&d=17924085&t=8",
+      //       "disclosureText": {
+      //         "text": "Summarized with Gemini",
+      //         "languageCode": "en-US"
+      //       },
+      //       "reviewsUri": "https://www.google.com/maps/place//data=!4m4!3m3!1s0x89c259433e189c85:0x6ac76a024af4bae5!9m1!1b1"
+      //     }
+      //   },
+      //   {
+      //     "id": "ChIJofE6JSBZwokRkOG-yB0pXns",
+      //     "types": [
+      //       "bar",
+      //       "point_of_interest",
+      //       "establishment"
+      //     ],
+      //     "rating": 4.3,
+      //     "userRatingCount": 228,
+      //     "displayName": {
+      //       "text": "Twins Lounge",
+      //       "languageCode": "en"
+      //     },
+      //     "dineIn": true,
+      //     "servesBeer": true,
+      //     "servesWine": true,
+      //     "primaryType": "bar",
+      //     "outdoorSeating": true,
+      //     "liveMusic": false,
+      //     "servesCocktails": true,
+      //     "goodForChildren": false,
+      //     "goodForGroups": true,
+      //     "goodForWatchingSports": false,
+      //     "generativeSummary": {
+      //       "overview": {
+      //         "text": "Mid-century modern-style bar offering beer, cocktails, pool tables, and a patio.",
+      //         "languageCode": "en-US"
+      //       },
+      //       "overviewFlagContentUri": "https://www.google.com/local/review/rap/report?postId=CiUweDg5YzI1OTIwMjUzYWYxYTE6MHg3YjVlMjkxZGM4YmVlMTkwMAI&d=17924085&t=12",
+      //       "disclosureText": {
+      //         "text": "Summarized with Gemini",
+      //         "languageCode": "en-US"
+      //       }
+      //     },
+      //     "reviewSummary": {
+      //       "text": {
+      //         "text": "People say this bar offers cheap and tasty drinks, including a solid Old Fashioned and a spicy margarita. They also highlight the cozy atmosphere, cool decoration, and the presence of pool tables and a photo booth.\n\nOther reviews mention the bartenders can be unfriendly.",
+      //         "languageCode": "en-US"
+      //       },
+      //       "flagContentUri": "https://www.google.com/local/review/rap/report?postId=5%401:CAIQACodChtyc19oOk1PcS1DLU56cTBwZmJLX2ZsMGJwUFE%7CCAIQACoqChtyc19oOk1PcS1DLU56cTBwZmJLX2ZsMGJwUFESCwjLjuvCBhDE0PIa&d=17924085&t=8",
+      //       "disclosureText": {
+      //         "text": "Summarized with Gemini",
+      //         "languageCode": "en-US"
+      //       },
+      //       "reviewsUri": "https://www.google.com/maps/place//data=!4m4!3m3!1s0x89c25920253af1a1:0x7b5e291dc8bee190!9m1!1b1"
+      //     }
+      //   }
+      // ];
+      // setResults(places);
+      // setLoading(false);
     }
   }, [hangoutData])
 

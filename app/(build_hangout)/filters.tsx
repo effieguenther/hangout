@@ -24,7 +24,6 @@ export default function FiltersScreen() {
     { value: 'COFFEE', isSelected: activityIsSelected('COFFEE')}, 
     { value: 'PARK', isSelected: activityIsSelected('PARK')}, 
     { value: 'DRINKS', isSelected: activityIsSelected('DRINKS')}, 
-    { value: 'MY PLACE', isSelected: activityIsSelected('MY PLACE')}
   ]);
   const [distanceFilters, setDistanceFilters] = useState([
     { value: 'UP TO 15 MINS AWAY', isSelected: distanceIsSelected('UP TO 15 MINS AWAY')}, 
