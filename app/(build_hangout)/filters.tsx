@@ -17,6 +17,13 @@ export default function FiltersScreen() {
   const distanceIsSelected = (distance: string) => hangoutData?.filters?.distance.find((filter) => filter === distance);
   const budgetIsSelected = (budget: string) => hangoutData?.filters?.budget.find((filter) => filter === budget);
 
+  const distanceFilters: String[] = [
+    'UP TO 15 MINS AWAY', 
+    'UP TO 30 MINS AWAY',
+    'UP TO 60 MINS AWAY',
+    'FIND A MIDPOINT'
+  ];
+  const [distanceFilter, setDistanceFilter] = useState(hangoutData?.filters?.distance);
   const [activityFilters, setActivityFilters] = useState([
     { value: 'DINNER', isSelected: activityIsSelected('DINNER')}, 
     { value: 'LUNCH', isSelected: activityIsSelected('LUNCH')}, 
@@ -25,20 +32,14 @@ export default function FiltersScreen() {
     { value: 'PARK', isSelected: activityIsSelected('PARK')}, 
     { value: 'DRINKS', isSelected: activityIsSelected('DRINKS')}, 
   ]);
-  const [distanceFilters, setDistanceFilters] = useState([
-    { value: 'UP TO 15 MINS AWAY', isSelected: distanceIsSelected('UP TO 15 MINS AWAY')}, 
-    { value: 'UP TO 30 MINS AWAY', isSelected: distanceIsSelected('UP TO 30 MINS AWAY')},
-    { value: 'UP TO 60 MINS AWAY', isSelected: distanceIsSelected('UP TO 60 MINS AWAY')},
-    { value: 'FIND A MIDPOINT', isSelected: distanceIsSelected('FIND A MIDPOINT')}
-  ]);
   const [budgetFilters, setBudgetFilters] = useState([
     { value: "$", isSelected: budgetIsSelected("$") },
     { value: "$$", isSelected: budgetIsSelected("$$") },
     { value: "$$$", isSelected: budgetIsSelected("$$$") },
   ]);
 
+  const selectedDistanceCount = distanceFilter ? 1 : 0;
   const selectedActivityCount = activityFilters.filter(a => a.isSelected).length;
-  const selectedDistanceCount = distanceFilters.filter(d => d.isSelected).length;
   const selectedBudgetCount = budgetFilters.filter(b => b.isSelected).length;
 
   const selectActivity = (idx: number) => {
@@ -47,9 +48,11 @@ export default function FiltersScreen() {
     setActivityFilters(copy);
   }
   const selectDistance = (idx: number) => {
-    const copy = [...distanceFilters];
-    copy[idx].isSelected = !copy[idx].isSelected;
-    setDistanceFilters(copy);
+    if (distanceFilters[idx] === distanceFilter) {
+      setDistanceFilter(undefined);
+    } else {
+      setDistanceFilter(distanceFilters[idx]);
+    }
   }
   const selectBudget = (idx: number) => {
     const copy = [...budgetFilters];
@@ -58,11 +61,10 @@ export default function FiltersScreen() {
   }
   const prepareFilterData = () => {
     const activityArr = activityFilters.filter(activity => activity.isSelected).map(activity => activity.value);
-    const distanceArr = distanceFilters.filter(distance => distance.isSelected).map(distance => distance.value);
     const budgetArr = budgetFilters.filter(budget => budget.isSelected).map(budget => budget.value);
     return {
       activity: activityArr.length > 0 ? activityArr : [],
-      distance: distanceArr.length > 0 ? distanceArr : [],
+      distance: distanceFilter,
       budget: budgetArr.length > 0 ? budgetArr : []
     }
   }
@@ -160,14 +162,14 @@ export default function FiltersScreen() {
                     >
                       <List.Item 
                         key={`distance_item_${idx}`} 
-                        title={distance.value} 
+                        title={distance} 
                         style={{
                           ...styles.listItem, 
-                          backgroundColor: distance.isSelected ? primaryColor : backgroundColor
+                          backgroundColor: distance === distanceFilter ? primaryColor : backgroundColor
                         }}
                         titleStyle={{
                           textAlign: 'center',
-                          color: distance.isSelected ? onPrimaryColor : onBackgroundColor
+                          color: distance === distanceFilter ? onPrimaryColor : onBackgroundColor
                         }}
                       />
                     </TouchableRipple>

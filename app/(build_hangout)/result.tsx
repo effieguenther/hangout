@@ -76,6 +76,25 @@ export default function ResultScreen() {
     }
     return types;
   }
+  
+  const getRadius = () => {
+    const distance = hangoutData.filters?.distance;
+    if (hangoutData && distance) {
+      if (distance === 'UP TO 15 MINS AWAY') {
+        return 1500
+      } else if (distance === 'UP TO 30 MINS AWAY') {
+        return 3000
+      } else if (distance === 'UP TO 60 MINS AWAY') {
+        return 6000
+      } else if (distance === 'FIND A MIDPOINT') {
+        // TO DO: switch google API clal to 'search along route' when multiple user locations are available
+        return 3000 
+      }
+    } else {
+      return 3000
+    }
+  }
+
   const screenWidth = Dimensions.get('window').width;
   const ref = useRef<ICarouselInstance>(null);
   const progress = useSharedValue<number>(0);
@@ -100,7 +119,7 @@ export default function ResultScreen() {
       "locationRestriction": {
         "circle": {
           "center": userLocation,
-          "radius": 1000
+          "radius": getRadius()
         }
       }
     }
@@ -125,13 +144,11 @@ export default function ResultScreen() {
       }
 
       const data = await response.json();
-      console.log(hangoutData.filters);
-      data.places.forEach((place: Place) => console.log(place.priceLevel));
       if (data.places?.length) {
         const budgetData = getBudgetData();
         if (budgetData) {
           return data.places.filter((place: Place) => 
-            budgetData.includes(place.priceLevel) || !place.priceLevel
+            !place.priceLevel || budgetData.includes(place.priceLevel) 
           );
         }
       }
@@ -386,7 +403,7 @@ export default function ResultScreen() {
     )
   } else {
     return (
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <View style={{...styles.container, backgroundColor: theme.colors.background, justifyContent: 'center' }}>
         <ActivityIndicator animating={true} size='large' />
       </View>
     )

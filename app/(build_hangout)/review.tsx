@@ -106,12 +106,11 @@ export default function ResultScreen() {
                 <Text style={{ color: theme.colors.primary }}>
                   Distance{" "}
                   {
-                    hangoutData.filters?.distance?.map((distance, idx) => 
-                      <Text key={`filter_${idx}`}>
-                        {distance.toLowerCase()}
-                        {idx < hangoutData.filters?.distance?.length - 1 ? ', ' : ''}
+                    hangoutData.filters?.distance && (
+                      <Text>
+                        {hangoutData.filters.distance.toLowerCase()}
                       </Text>
-                    )
+                    ) 
                   }
                 </Text>
                 <Text style={{ color: theme.colors.primary }}>

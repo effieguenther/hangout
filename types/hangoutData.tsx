@@ -16,7 +16,7 @@ export interface Contact {
 
 export interface Filters {
   activity: string[];
-  distance: string[];
+  distance: string;
   budget: string[];
 }
 

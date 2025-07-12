@@ -66,6 +66,8 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
         place.formattedAddress = placeDetailsData.formattedAddress;
       }
 
+      fetchTravelTime();
+
       if (placeDetailsData.photos && placeDetailsData.photos.length > 0) {
         const featuredPhoto = placeDetailsData.photos[0];
         const photoName = featuredPhoto.name;
@@ -141,8 +143,8 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
       ]);
 
       setTravelTimes({
-        walking: walkingTime || undefined,
-        publicTransit: publicTransitTime || undefined,
+        walking: walkingTime?.includes('hour') ? undefined : (walkingTime || undefined),
+        publicTransit: publicTransitTime === walkingTime ? undefined : (publicTransitTime || undefined),
       });
 
       if (!walkingTime && !publicTransitTime) {
@@ -159,58 +161,78 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
   useEffect(() => {
     if (place.id) {
       fetchDetails();
-      fetchTravelTime();
     }
   }, []);
 
 
   return (
     <Surface style={styles.card}>
-      <View style={styles.titleContainer}>
-        <View style={{flex: 1}}>
-          <Text variant='headlineSmall' style={{flexWrap: 'wrap'}}>
-            {place.displayName.text}
-          </Text>
-        </View>
-        <Text style={styles.travelIndicator}>
-          <Icon source="walk" size={20} />
-          {travelTimes?.walking}
-        </Text>
-        <Text style={styles.travelIndicator}>
-          <Icon source="train" size={20} />
-          {travelTimes?.publicTransit}
-        </Text>
-      </View>
-      {isDetailLoading ? (
-          <ActivityIndicator animating={true} />
+      {
+        isDetailLoading || isTravelTimeLoading ? (
+          <View style={{height: '100%', justifyContent: 'center'}}>
+            <ActivityIndicator animating={true} size='large' />
+          </View>
         ) : detailError ? (
           <Text>{detailError}</Text>
-        ) : photoUrl ? (
+        ) : travelTimeError ? (
+          <Text>{travelTimeError}</Text>
+        ) : travelTimes ? (
           <>
-            <Text>
-              {place.formattedAddress}
-            </Text>
-            <Text>
-              {place.editorialSummary?.text}
-            </Text>
-            {
-              priceLevel && (
-                <Text>
-                  {priceLevel}
-                </Text>
-              )
-            }
-            <Image source={{ uri: photoUrl }} style={styles.placeImage} resizeMode="cover" />
-            {photoAttributions.length > 0 && (
-              <View>
-                <Text variant='labelSmall'>
-                  Photo by: {photoAttributions.join(', ')}
+            <View style={styles.titleContainer}>
+              <View style={{flex: 1}}>
+                <Text variant='headlineSmall' style={{flexWrap: 'wrap'}}>
+                  {place.displayName.text}
                 </Text>
               </View>
-            )}
+              {
+                travelTimes?.walking && (
+                  <Text style={styles.travelIndicator}>
+                    <Icon source="walk" size={20} />
+                    {travelTimes?.walking}
+                  </Text>
+                )
+              }
+              {
+                travelTimes?.publicTransit && (
+                  <Text style={styles.travelIndicator}>
+                    <Icon source="train" size={20} />
+                    {travelTimes?.publicTransit}
+                  </Text>
+                )
+              }
+            </View>
+            {
+              photoUrl ? (
+                <>
+                  <Text>
+                    {place.formattedAddress}
+                  </Text>
+                  <Text>
+                    {place.editorialSummary?.text}
+                  </Text>
+                  {
+                    priceLevel && (
+                      <Text>
+                        {priceLevel}
+                      </Text>
+                    )
+                  }
+                  <Image source={{ uri: photoUrl }} style={styles.placeImage} resizeMode="cover" />
+                  {photoAttributions.length > 0 && (
+                    <View>
+                      <Text variant='labelSmall'>
+                        Photo by: {photoAttributions.join(', ')}
+                      </Text>
+                    </View>
+                  )}
+                </>
+              ) : (
+                <Text>No featured photo available.</Text>
+              )
+            }
           </>
         ) : (
-          <Text>No featured photo available.</Text>
+          <Text>No travel times</Text>
         )
       }
     </Surface>
