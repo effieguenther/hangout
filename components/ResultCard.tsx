@@ -1,7 +1,7 @@
+import usePlaceDetails from '@/hooks/usePlaceDetails';
 import { Place } from '@/types/place';
-import { useEffect, useState } from 'react';
-import { Image, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Icon, Surface, Text } from 'react-native-paper';
+import { Image, Linking, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Button, Icon, Surface, Text } from 'react-native-paper';
 
 interface ResultCardProps {
   place: Place;
@@ -13,17 +13,7 @@ interface TravelTimeResult {
 }
 
 const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
-  const [photoAttributions, setPhotoAttributions] = useState<string[]>([]);
-  const [isDetailLoading, setIsDetailLoading] = useState(true);
-  const [detailError, setDetailError] = useState<string | null>(null);
-
-  const [travelTimes, setTravelTimes] = useState<TravelTimeResult | null>(null);
-  const [isTravelTimeLoading, setIsTravelTimeLoading] = useState(true);
-  const [travelTimeError, setTravelTimeError] = useState<string | null>(null);
-
-  const userLocation = {latitude: 40.726113, longitude: -73.952996};
-  const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
+  const {detailedPlace, isDetailLoading, detailError} = usePlaceDetails(place);
 
   const getPriceLevel = () => {
     if (place.priceLevel === 'PRICE_LEVEL_FREE') {
@@ -43,172 +33,67 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
 
   const priceLevel = getPriceLevel()
 
-  const fetchDetails = async () => {
-    try {
-      const placeDetailsUrl = `https://places.googleapis.com/v1/places/${place.id}?fields=photos,location,formattedAddress&key=${GOOGLE_MAPS_API_KEY}`;
-      const placeDetailsResponse = await fetch(placeDetailsUrl);
-      const placeDetailsData = await placeDetailsResponse.json();
+  const openPlaceInGoogleMaps = () => {
+    if (place.id && place.displayName?.text) {
+      const encodedPlaceName = encodeURIComponent(place.displayName.text);
+      const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedPlaceName}&query_place_id=${place.id}`;
 
-      if (!placeDetailsResponse.ok) {
-        setDetailError(`Failed to fetch place details: ${placeDetailsData.error?.message || 'Unknown error'}`);
-        setIsDetailLoading(false);
-        return;
-      }
-
-      if (placeDetailsData.location) {
-        place.location = {
-          latitude: placeDetailsData.location.latitude,
-          longitude: placeDetailsData.location.longitude,
-        };
-      }
-
-      if (placeDetailsData.formattedAddress) {
-        place.formattedAddress = placeDetailsData.formattedAddress;
-      }
-
-      fetchTravelTime();
-
-      if (placeDetailsData.photos && placeDetailsData.photos.length > 0) {
-        const featuredPhoto = placeDetailsData.photos[0];
-        const photoName = featuredPhoto.name;
-        const photoContentUrl = `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=400&maxWidthPx=400&key=${GOOGLE_MAPS_API_KEY}`;
-        const photoContentResponse = await fetch(photoContentUrl);
-
-        if (!photoContentResponse.ok) {
-          setDetailError(`Failed to fetch photo content: ${photoContentResponse.statusText}`);
-          setIsDetailLoading(false);
-          return;
-        }
-
-        setPhotoUrl(photoContentResponse.url);
-        
-        if (featuredPhoto.authorAttributions && featuredPhoto.authorAttributions.length > 0) {
-          const attributions = featuredPhoto.authorAttributions.map((attr: any) => attr.displayName);
-          setPhotoAttributions(attributions);
-        }
-
-      } else {
-        setDetailError('No photos found for this place.');
-      }
-    } catch (error: any) {
-      setDetailError(`Error fetching photo: ${error.message}`);
-    } finally {
-      setIsDetailLoading(false);
-    }
-  };
-
-  const fetchTravelTime = async () => {
-    if (!userLocation || !place?.location || !place?.id) {
-      setTravelTimeError('User location or place location/ID is missing.');
-      setIsTravelTimeLoading(false);
-      return;
-    }
-
-    const origins = `${userLocation.latitude},${userLocation.longitude}`;
-    const destinations = `place_id:${place.id}`; // Always use place_id for destinations when possible
-
-    const fetchModeTravelTime = async (mode: 'driving' | 'walking' | 'transit'): Promise<string | null> => {
-      try {
-        const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origins}&destinations=${destinations}&mode=${mode}&departure_time=now&key=${GOOGLE_MAPS_API_KEY}`;
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (!response.ok || data.status !== 'OK') {
-          console.error(`Error fetching ${mode} travel time:`, data.error_message || data.status);
-          return null;
-        }
-
-        if (data.rows && data.rows.length > 0 && data.rows[0].elements && data.rows[0].elements.length > 0) {
-          const element = data.rows[0].elements[0];
-          if (element.status === 'OK' && element.duration) {
-            return element.duration.text;
-          } else {
-            console.warn(`Travel time not available for ${mode}: ${element.status}`);
-            return null;
-          }
+      Linking.canOpenURL(googleMapsUrl).then(supported => {
+        if (supported) {
+          Linking.openURL(googleMapsUrl);
         } else {
-          console.warn(`No travel time data found for ${mode}.`);
-          return null;
+          console.error("Don't know how to open Google Maps URL: " + googleMapsUrl);
         }
-      } catch (error: any) {
-        console.error(`Network error fetching ${mode} travel time:`, error.message);
-        return null;
-      }
-    };
-
-    try {
-      const [walkingTime, publicTransitTime] = await Promise.all([
-        fetchModeTravelTime('walking'),
-        fetchModeTravelTime('transit'),
-      ]);
-
-      setTravelTimes({
-        walking: walkingTime?.includes('hour') ? undefined : (walkingTime || undefined),
-        publicTransit: publicTransitTime === walkingTime ? undefined : (publicTransitTime || undefined),
-      });
-
-      if (!walkingTime && !publicTransitTime) {
-        setTravelTimeError('Could not retrieve travel times for walking or public transit.');
-      }
-
-    } catch (error: any) {
-      setTravelTimeError(`An error occurred while fetching travel times: ${error.message}`);
-    } finally {
-      setIsTravelTimeLoading(false);
+      }).catch(err => console.error('An error occurred', err));
+    } else {
+      console.warn('Cannot open in Google Maps: Place ID or display name missing');
     }
   };
-
-  useEffect(() => {
-    if (place.id) {
-      fetchDetails();
-    }
-  }, []);
-
 
   return (
     <Surface style={styles.card}>
       {
-        isDetailLoading || isTravelTimeLoading ? (
+        isDetailLoading ? (
           <View style={{height: '100%', justifyContent: 'center'}}>
             <ActivityIndicator animating={true} size='large' />
           </View>
         ) : detailError ? (
           <Text>{detailError}</Text>
-        ) : travelTimeError ? (
-          <Text>{travelTimeError}</Text>
-        ) : travelTimes ? (
+        ) : detailedPlace ? (
           <>
             <View style={styles.titleContainer}>
               <View style={{flex: 1}}>
-                <Text variant='headlineSmall' style={{flexWrap: 'wrap'}}>
-                  {place.displayName.text}
+                <Text 
+                  variant='headlineSmall' 
+                  style={{flexWrap: 'wrap'}}>
+                  {detailedPlace.displayName.text}
                 </Text>
               </View>
               {
-                travelTimes?.walking && (
+                detailedPlace.travelTimes?.walking && (
                   <Text style={styles.travelIndicator}>
                     <Icon source="walk" size={20} />
-                    {travelTimes?.walking}
+                    {detailedPlace.travelTimes?.walking}
                   </Text>
                 )
               }
               {
-                travelTimes?.publicTransit && (
+                detailedPlace.travelTimes?.publicTransit && (
                   <Text style={styles.travelIndicator}>
                     <Icon source="train" size={20} />
-                    {travelTimes?.publicTransit}
+                    {detailedPlace.travelTimes?.publicTransit}
                   </Text>
                 )
               }
             </View>
             {
-              photoUrl ? (
+              detailedPlace.photoUrl ? (
                 <>
                   <Text>
-                    {place.formattedAddress}
+                    {detailedPlace.formattedAddress}
                   </Text>
                   <Text>
-                    {place.editorialSummary?.text}
+                    {detailedPlace.editorialSummary?.text}
                   </Text>
                   {
                     priceLevel && (
@@ -217,14 +102,33 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
                       </Text>
                     )
                   }
-                  <Image source={{ uri: photoUrl }} style={styles.placeImage} resizeMode="cover" />
-                  {photoAttributions.length > 0 && (
+                  <Image source={{ uri: detailedPlace.photoUrl }} style={styles.placeImage} resizeMode="cover" />
+                  {detailedPlace.photoAttributions && detailedPlace.photoAttributions.length > 0 && (
                     <View>
                       <Text variant='labelSmall'>
-                        Photo by: {photoAttributions.join(', ')}
+                        Photo by: {detailedPlace.photoAttributions.join(', ')}
                       </Text>
                     </View>
                   )}
+                  <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                    {
+                      detailedPlace.websiteUri && (
+                        <Button 
+                          mode='contained' 
+                          style={{marginRight: 20}} 
+                          onPress={() => {
+                            if (detailedPlace.websiteUri) {
+                            Linking.openURL(detailedPlace.websiteUri)
+                        }}}>
+                          WEBSITE
+                        </Button>
+                      )
+                    }
+                    <Button mode='contained' onPress={openPlaceInGoogleMaps}>
+                      SEE ON MAP
+                    </Button>
+                  </View>
+                  
                 </>
               ) : (
                 <Text>No featured photo available.</Text>

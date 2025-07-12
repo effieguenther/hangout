@@ -24,11 +24,6 @@ export interface IGenerativeSummary {
   disclosureText: ITextObject;
 }
 
-export interface Location {
-  latitude: number;
-  longitude: number;
-}
-
 /**
  * Represents the main interface for a Place object.
  */
@@ -55,8 +50,6 @@ export interface Place {
   goodForGroups: boolean;
   goodForWatchingSports?: boolean;
   generativeSummary?: IGenerativeSummary;
-  location?: Location;
-  formattedAddress?: String;
   reviewSummary?: {
     text: ITextObjectWithUri;
     flagContentUri: string;
