@@ -17,7 +17,7 @@ const CONTAINER_PADDING = 20;
 
 export default function ResultScreen() {
   const theme = useTheme();
-  const { hangoutData } = useHangoutBuilder();
+  const { hangoutData} = useHangoutBuilder();
   const [results, setResults] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -27,10 +27,31 @@ export default function ResultScreen() {
     age: 29,
     gender: 'female'
   }
-  const hangoutInfo = {
+  const hangoutDataForAI = {
     dates: hangoutData.date,
-    activity: hangoutData.filters?.activity
+    activity: hangoutData.filters?.activity,
   }
+
+  const getBudgetData = (): String[] | null => {
+    if (hangoutData && hangoutData.filters?.budget?.length) {
+      const budgetData: String[] = []
+      hangoutData.filters.budget.forEach((budget: String) => {
+        if (budget === '$') {
+          budgetData.push('PRICE_LEVEL_INEXPENSIVE');
+          budgetData.push('PRICE_LEVEL_FREE');
+        } else if (budget === '$$') {
+          budgetData.push('PRICE_LEVEL_MODERATE');
+        } else if (budget === '$$$') {
+          budgetData.push('PRICE_LEVEL_EXPENSIVE');
+          budgetData.push('PRICE_LEVEL_VERY_EXPENSIVE');
+        }
+      })
+      return budgetData;
+    } else {
+      return null;
+    }
+  }
+
   const getIncludedTypes = () => {
     const types: string[] = [];
     const activities = hangoutData.filters?.activity
@@ -104,8 +125,18 @@ export default function ResultScreen() {
       }
 
       const data = await response.json();
-      console.log(data.places);
-      return data;
+      console.log(hangoutData.filters);
+      data.places.forEach((place: Place) => console.log(place.priceLevel));
+      if (data.places?.length) {
+        const budgetData = getBudgetData();
+        if (budgetData) {
+          return data.places.filter((place: Place) => 
+            budgetData.includes(place.priceLevel) || !place.priceLevel
+          );
+        }
+      }
+
+      return data.places;
 
     } catch (error) {
       console.error("Error fetching Google Maps data:", error);
@@ -116,15 +147,15 @@ export default function ResultScreen() {
   }
 
   const getGeminiRecs = async () => {
-    const data = await getGoogleMapsData();
-    if (data.places && data.places.length > 3) {
+    const places = await getGoogleMapsData();
+    if (places && places.length > 3) {
       try {
         const ai = new GoogleGenAI({apiKey: process.env.EXPO_PUBLIC_GEMINI_API_KEY});
         const prompt = `
           Analyze the following three JSON objects:
             1.  **User Information**: ${JSON.stringify(userInfo)}
-            2.  **Hangout Details**: ${JSON.stringify(hangoutInfo)}
-            3.  **Available Places**: ${JSON.stringify(data.places)}
+            2.  **Hangout Details**: ${JSON.stringify(hangoutDataForAI)}
+            3.  **Available Places**: ${JSON.stringify(places)}
           
           Based on all the provided data, act as a recommendation engine. Your task is to select the top 3 places from the "Available Places" list that best match the "User Information" and "Hangout Details".
 
@@ -152,8 +183,8 @@ export default function ResultScreen() {
         setError(errorMessage);
         setLoading(false);
       }
-    } else if (data.places > 0) {
-      setResults(data.places);
+    } else if (places.length > 0) {
+      setResults(places);
       setLoading(false);
     } else {
       setError('There are no places that match your filters and location. Please try a broader search.');

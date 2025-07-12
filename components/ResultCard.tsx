@@ -25,6 +25,24 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
   const userLocation = {latitude: 40.726113, longitude: -73.952996};
   const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
+  const getPriceLevel = () => {
+    if (place.priceLevel === 'PRICE_LEVEL_FREE') {
+      return 'FREE'
+    } else if (place.priceLevel === 'PRICE_LEVEL_INEXPENSIVE') {
+      return '$'
+    } else if (place.priceLevel === 'PRICE_LEVEL_MODERATE') {
+      return '$$'
+    } else if (place.priceLevel === 'PRICE_LEVEL_EXPENSIVE') {
+      return '$$$'
+    } else if (place.priceLevel === 'PRICE_LEVEL_VERY_EXPENSIVE') {
+      return '$$$$'
+    } else {
+      return null
+    }
+  }
+
+  const priceLevel = getPriceLevel()
+
   const fetchDetails = async () => {
     try {
       const placeDetailsUrl = `https://places.googleapis.com/v1/places/${place.id}?fields=photos,location,formattedAddress&key=${GOOGLE_MAPS_API_KEY}`;
@@ -149,9 +167,11 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
   return (
     <Surface style={styles.card}>
       <View style={styles.titleContainer}>
-        <Text variant='headlineSmall'>
-          {place.displayName.text}
-        </Text>
+        <View style={{flex: 1}}>
+          <Text variant='headlineSmall' style={{flexWrap: 'wrap'}}>
+            {place.displayName.text}
+          </Text>
+        </View>
         <Text style={styles.travelIndicator}>
           <Icon source="walk" size={20} />
           {travelTimes?.walking}
@@ -173,6 +193,13 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
             <Text>
               {place.editorialSummary?.text}
             </Text>
+            {
+              priceLevel && (
+                <Text>
+                  {priceLevel}
+                </Text>
+              )
+            }
             <Image source={{ uri: photoUrl }} style={styles.placeImage} resizeMode="cover" />
             {photoAttributions.length > 0 && (
               <View>
