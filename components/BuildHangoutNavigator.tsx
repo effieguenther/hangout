@@ -8,13 +8,15 @@ export default function BuildHangoutNavigator({ onNext = () => {}, onPrev = () =
         icon="arrow-left" 
         size={24} 
         onPress={onPrev}
+        mode='outlined'
       />
-      <Text variant="bodyLarge">MAKE A PLAN</Text>
+      <Text variant="headlineSmall" style={{fontWeight: 600}}>MAKE A PLAN</Text>
       { !nextDisabled && (
         <IconButton 
           icon="arrow-right" 
           size={24} 
           onPress={onNext}
+          mode='outlined'
         />
       )}
     </View>
@@ -24,9 +26,10 @@ export default function BuildHangoutNavigator({ onNext = () => {}, onPrev = () =
 const styles = StyleSheet.create({
   navContainer: {
     flexDirection: 'row', 
-    justifyContent: 'center', 
+    justifyContent: 'space-between', 
     alignItems: 'center', 
     paddingTop: 50,
-    paddingBottom: 10
+    paddingBottom: 10,
+    width: '100%'
   },
 })

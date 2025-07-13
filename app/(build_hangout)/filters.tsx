@@ -14,10 +14,9 @@ export default function FiltersScreen() {
   const { hangoutData, updateHangoutData } = useHangoutBuilder();
 
   const activityIsSelected = (activity: string) => hangoutData?.filters?.activity.find((filter) => filter === activity);
-  const distanceIsSelected = (distance: string) => hangoutData?.filters?.distance.find((filter) => filter === distance);
   const budgetIsSelected = (budget: string) => hangoutData?.filters?.budget.find((filter) => filter === budget);
 
-  const distanceFilters: String[] = [
+  const distanceFilters: string[] = [
     'UP TO 15 MINS AWAY', 
     'UP TO 30 MINS AWAY',
     'UP TO 60 MINS AWAY',
@@ -88,8 +87,8 @@ export default function FiltersScreen() {
           ALL SET?
         </Text>
         <TouchableRipple onPress={onNext}>
-          <Surface style={{ ...styles.continue, backgroundColor: theme.colors.primary }}>
-            <Text variant="headlineLarge" style={{ color: theme.colors.onPrimary, textAlign: 'center' }}>
+          <Surface style={{ ...styles.continue, backgroundColor: theme.colors.secondary }}>
+            <Text variant="headlineLarge" style={{ color: theme.colors.onSecondary, textAlign: 'center' }}>
               CONTINUE
             </Text>
           </Surface>
@@ -126,11 +125,11 @@ export default function FiltersScreen() {
                         title={activity.value} 
                         style={{
                           ...styles.listItem, 
-                          backgroundColor: activity.isSelected ? primaryColor : backgroundColor
+                          borderColor: activity.isSelected ? primaryColor : onBackgroundColor
                         }}
                         titleStyle={{
                           textAlign: 'center',
-                          color: activity.isSelected ? onPrimaryColor : onBackgroundColor
+                          color: activity.isSelected ? primaryColor : onBackgroundColor
                         }}
                       />
                     </TouchableRipple>
@@ -165,11 +164,11 @@ export default function FiltersScreen() {
                         title={distance} 
                         style={{
                           ...styles.listItem, 
-                          backgroundColor: distance === distanceFilter ? primaryColor : backgroundColor
+                          borderColor: distance === distanceFilter ? primaryColor : onBackgroundColor
                         }}
                         titleStyle={{
                           textAlign: 'center',
-                          color: distance === distanceFilter ? onPrimaryColor : onBackgroundColor
+                          color: distance === distanceFilter ? primaryColor : onBackgroundColor
                         }}
                       />
                     </TouchableRipple>
@@ -204,11 +203,11 @@ export default function FiltersScreen() {
                         title={budget.value} 
                         style={{
                           ...styles.listItem, 
-                          backgroundColor: budget.isSelected ? primaryColor : backgroundColor
+                          borderColor: budget.isSelected ? primaryColor : onBackgroundColor
                         }}
                         titleStyle={{
                           textAlign: 'center',
-                          color: budget.isSelected ? onPrimaryColor : onBackgroundColor
+                          color: budget.isSelected ? primaryColor : onBackgroundColor
                         }}
                       />
                     </TouchableRipple>

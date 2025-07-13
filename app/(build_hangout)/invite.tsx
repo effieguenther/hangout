@@ -60,24 +60,28 @@ export default function InviteScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={{...styles.container, padding: 20}}>
+    <View style={styles.container}>
+      <View style={{...styles.container, padding: 20, backgroundColor: theme.colors.background}}>
         <BuildHangoutNavigator onNext={advance} onPrev={goBack} />
-        <Text variant="headlineMedium" style={{ color: theme.colors.onBackground, marginVertical: 20 }}>
+        <Text variant="titleLarge" style={{ color: theme.colors.onBackground, marginVertical: 20 }}>
           INVITE
         </Text>
         <Searchbar
           placeholder='Search'
           onChangeText={setSearchQuery}
           value={searchQuery}
-          style={{width: '100%'}}
+          style={{width: '100%', borderRadius: 10}}
+          iconColor={theme.colors.tertiary}
+          elevation={1}
         />
         <ScrollView style={{width: '100%', padding: 10}}>
           {contacts.map((contact, index) => (
             <View style={styles.contactContainer} key={`contact_${index}`}>
               <Avatar.Text 
-                size={24}
+                size={34}
                 label={contact.initials} 
+                style={{backgroundColor: theme.colors.tertiary}}
+                color={theme.colors.onTertiary}
               />
               <Text style={{flex: 1}}>
                 {contact.firstName} {contact.lastName}
@@ -101,6 +105,9 @@ export default function InviteScreen() {
             <Button
               onPress={advance}
               mode='contained'
+              buttonColor={theme.colors.secondary}
+              textColor={theme.colors.onSecondary}
+              style={{borderRadius: 10}}
             >
               CONTINUE
             </Button>

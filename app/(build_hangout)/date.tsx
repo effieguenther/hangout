@@ -152,10 +152,10 @@ export default function DateScreen() {
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={{...styles.container, padding: 20}}>
         <BuildHangoutNavigator onNext={advance} onPrev={goBack} />
-        <Text variant="bodySmall" style={{ paddingBottom: 20 }}>
+        <Text variant="bodySmall" style={{ paddingVertical: 20 }}>
           SELECT ALL THAT APPLY
         </Text>
-        <Surface style={{ backgroundColor: theme.colors.background, padding: 10 }}>
+        <Surface style={{borderRadius: 10, padding: 10}} elevation={4}>
           <Calendar
             style={{ width: 290 }}
             theme={calendarTheme}
@@ -172,10 +172,13 @@ export default function DateScreen() {
               key={`option_${index}`}
               onPress={() => selectOption(index)}
             >
-              <View style={{
-                ...styles.optionButton,
-                backgroundColor: option.isSelected ? theme.colors.primary : theme.colors.background
-              }}>
+              <Surface 
+                style={{
+                  ...styles.optionButton,
+                  backgroundColor: option.isSelected ? theme.colors.primary : theme.colors.background
+                }}
+                elevation={1}
+              >
                 <Text
                   variant='bodyMedium'
                   style={{
@@ -185,7 +188,7 @@ export default function DateScreen() {
                 >
                   {option.value}
                 </Text>
-              </View>
+              </Surface>
             </TouchableRipple>
           ))}
         </View>
@@ -201,6 +204,9 @@ export default function DateScreen() {
             <Button
               onPress={advance}
               mode='contained'
+              buttonColor={theme.colors.secondary}
+              textColor={theme.colors.onSecondary}
+              style={{borderRadius: 10}}
             >
               CONTINUE
             </Button>

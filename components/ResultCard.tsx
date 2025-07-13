@@ -7,11 +7,6 @@ interface ResultCardProps {
   place: Place;
 }
 
-interface TravelTimeResult {
-  publicTransit?: string;
-  walking?: string;
-}
-
 const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
   const {detailedPlace, isDetailLoading, detailError} = usePlaceDetails(place);
 
@@ -114,7 +109,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
                     {
                       detailedPlace.websiteUri && (
                         <Button 
-                          mode='contained' 
+                          mode='outlined' 
                           style={{marginRight: 20}} 
                           onPress={() => {
                             if (detailedPlace.websiteUri) {
@@ -124,8 +119,8 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
                         </Button>
                       )
                     }
-                    <Button mode='contained' onPress={openPlaceInGoogleMaps}>
-                      SEE ON MAP
+                    <Button mode='outlined' onPress={openPlaceInGoogleMaps}>
+                      MAP
                     </Button>
                   </View>
                   

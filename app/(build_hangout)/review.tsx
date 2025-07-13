@@ -17,8 +17,8 @@ export default function ResultScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <BuildHangoutNavigator onPrev={onPrev} onNext={onNext} />
-      <Text variant="headlineMedium" style={{ color: theme.colors.onBackground }}>
-        Review
+      <Text variant="titleLarge" style={{ color: theme.colors.onBackground, marginTop: 20 }}>
+        REVIEW
       </Text>
       <ScrollView style={{ width: '100%', padding: 20 }}>
         <View style={styles.infoContainer}>
@@ -137,9 +137,9 @@ export default function ResultScreen() {
           </View>
         </View>
         <TouchableRipple onPress={onNext}>
-          <Surface style={{ ...styles.continue, backgroundColor: theme.colors.primary }}>
-            <Text variant="headlineLarge" style={{ color: theme.colors.onPrimary, textAlign: 'center' }}>
-              CONTINUE
+          <Surface style={{ ...styles.continue, backgroundColor: theme.colors.secondary }}>
+            <Text variant="headlineLarge" style={{ color: theme.colors.onSecondary, textAlign: 'center' }}>
+              GENERATE PLAN
             </Text>
           </Surface>
         </TouchableRipple>
