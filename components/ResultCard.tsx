@@ -1,13 +1,14 @@
 import usePlaceDetails from '@/hooks/usePlaceDetails';
 import { Place } from '@/types/place';
 import { Image, Linking, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Button, Icon, Surface, Text } from 'react-native-paper';
+import { ActivityIndicator, Button, Icon, Surface, Text, useTheme } from 'react-native-paper';
 
 interface ResultCardProps {
   place: Place;
 }
 
 const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
+  const theme = useTheme();
   const {detailedPlace, isDetailLoading, detailError} = usePlaceDetails(place);
 
   const getPriceLevel = () => {
@@ -59,15 +60,15 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
             <View style={styles.titleContainer}>
               <View style={{flex: 1}}>
                 <Text 
-                  variant='headlineSmall' 
-                  style={{flexWrap: 'wrap'}}>
+                  variant='titleLarge' 
+                  style={{flexWrap: 'wrap', fontWeight: 600}}>
                   {detailedPlace.displayName.text}
                 </Text>
               </View>
               {
                 detailedPlace.travelTimes?.walking && (
                   <Text style={styles.travelIndicator}>
-                    <Icon source="walk" size={20} />
+                    <Icon source="walk" size={20} color={theme.colors.primary} />
                     {detailedPlace.travelTimes?.walking}
                   </Text>
                 )
@@ -75,7 +76,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
               {
                 detailedPlace.travelTimes?.publicTransit && (
                   <Text style={styles.travelIndicator}>
-                    <Icon source="train" size={20} />
+                    <Icon source="train" size={20} color={theme.colors.primary} />
                     {detailedPlace.travelTimes?.publicTransit}
                   </Text>
                 )
@@ -97,20 +98,23 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
                       </Text>
                     )
                   }
-                  <Image source={{ uri: detailedPlace.photoUrl }} style={styles.placeImage} resizeMode="cover" />
-                  {detailedPlace.photoAttributions && detailedPlace.photoAttributions.length > 0 && (
-                    <View>
-                      <Text variant='labelSmall'>
-                        Photo by: {detailedPlace.photoAttributions.join(', ')}
-                      </Text>
-                    </View>
-                  )}
+                  <View>
+                    <Image source={{ uri: detailedPlace.photoUrl }} style={styles.placeImage} resizeMode="cover" />
+                    {detailedPlace.photoAttributions && detailedPlace.photoAttributions.length > 0 && (
+                      <View>
+                        <Text variant='labelSmall'>
+                          Photo by: {detailedPlace.photoAttributions.join(', ')}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                  
                   <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                     {
                       detailedPlace.websiteUri && (
                         <Button 
                           mode='outlined' 
-                          style={{marginRight: 20}} 
+                          style={{marginRight: 20, minWidth: 200 }} 
                           onPress={() => {
                             if (detailedPlace.websiteUri) {
                             Linking.openURL(detailedPlace.websiteUri)
@@ -119,7 +123,10 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
                         </Button>
                       )
                     }
-                    <Button mode='outlined' onPress={openPlaceInGoogleMaps}>
+                    <Button 
+                      mode='outlined' 
+                      onPress={openPlaceInGoogleMaps}
+                    >
                       MAP
                     </Button>
                   </View>
@@ -141,9 +148,9 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
 const styles = StyleSheet.create({
   card: {
     flexGrow: 1,
-    padding: 14,
-    borderRadius: 10,
-    borderWidth: 1,
+    padding: 20,
+    borderRadius: 30,
+    borderWidth: 2,
     width: '100%',
     rowGap: 20,
     height: '100%'

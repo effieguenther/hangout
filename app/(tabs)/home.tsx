@@ -1,15 +1,15 @@
 // app/(app)/home.js
-import { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { 
-  Text, 
-  useTheme, 
-  Surface, 
-  TouchableRipple,
-  Switch,
-  Avatar
-} from 'react-native-paper';
 import { router } from 'expo-router';
+import { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import {
+  Avatar,
+  Surface,
+  Switch,
+  Text,
+  TouchableRipple,
+  useTheme
+} from 'react-native-paper';
 
 export default function HomeScreen() {
   const theme = useTheme();
@@ -19,36 +19,49 @@ export default function HomeScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text variant="headlineMedium" style={{ marginBottom: 20, color: theme.colors.onBackground }}>
-        LET'S HANG
-      </Text>
+    <View style={{flex: 1}}>
+      <View style={{ ...styles.topContainer, backgroundColor: theme.colors.background}}>
+        <Text variant="headlineMedium" style={{ marginBottom: 20, fontWeight: 600 }}>
+          LET'S HANG
+        </Text>
 
-      <View style={{
-        ...styles.userInfoContainer, 
-        flexDirection: 'row',
-        gap: 15,
-        alignItems: 'center'
-      }}>
-        <Avatar.Text size={44} label="UR" />
-        <View>
+        <View style={{
+          ...styles.userInfoContainer, 
+          flexDirection: 'row',
+          gap: 15,
+          alignItems: 'center',
+          backgroundColor: theme.colors.surfaceVariant
+        }}>
+          <Avatar.Text 
+            size={44} 
+            label="UR" 
+            style={{backgroundColor: theme.colors.tertiary}} 
+            labelStyle={{color: theme.colors.onTertiary}}
+          />
+          <View>
+            <Text>
+              URSHILA RANA
+            </Text>
+            <Text>
+              urshilarana96@gmail.com
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.hangoutMeterContainer}>
           <Text>
-            URSHILA RANA
+            Hangout meter (1/4)
           </Text>
-          <Text>
-            urshilarana96@gmail.com
-          </Text>
+          <View style={styles.hangoutMeter}>
+            <View style={{...styles.hangoutBubble, backgroundColor: theme.colors.primary}}></View>
+            <View style={{...styles.hangoutBubble, backgroundColor: theme.colors.tertiary}}></View>
+            <View style={{...styles.hangoutBubble, backgroundColor: theme.colors.tertiary}}></View>
+            <View style={{...styles.hangoutBubble, backgroundColor: theme.colors.tertiary}}></View>
+          </View>
         </View>
       </View>
 
-      <View style={styles.hangoutMeterContainer}>
-        <Text>
-          Hangout meter (1/4)
-        </Text>
-        <View style={styles.hangoutMeter}></View>
-      </View>
-
-      <View style={styles.menuContainer}>
+      <View style={{...styles.menuContainer, backgroundColor: theme.colors.surfaceVariant}}>
         <Surface style={{...styles.surfaceButton, flexDirection: 'row', justifyContent: 'space-between'}}>
           <Text>
             AVAILABLE
@@ -62,8 +75,8 @@ export default function HomeScreen() {
         <TouchableRipple         
           onPress={() => router.push('/(build_hangout)/invite')} 
         >
-          <Surface style={styles.surfaceButton}>
-            <Text>
+          <Surface style={{...styles.surfaceButton, backgroundColor: theme.colors.secondary}}>
+            <Text variant='headlineMedium' style={{fontWeight: 600, color: theme.colors.onSecondary}}>
               MAKE A PLAN
             </Text>
           </Surface>
@@ -74,17 +87,18 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    flexDirection: 'column'
+  topContainer: {
+    alignItems: 'center', 
+    padding: 20, 
+    width: '100%',
+    paddingTop: 140
   },
   menuContainer: {
     width: '100%',
-    padding: 10,
+    padding: 20,
     gap: 15,
+    flex: 1,
+    borderRadius: 20
   },
   userInfoContainer: {
     borderWidth: 1,
@@ -98,10 +112,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   hangoutMeter: {
-    padding: 10,
+    padding: 5,
     borderRadius: 15,
     borderWidth: 1,
-    marginTop: 10
+    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  hangoutBubble: {
+    borderRadius: 20,
+    height: 10,
+    flex: 1,
+    marginHorizontal: 1.5
   },
   surfaceButton: {
     padding: 30,

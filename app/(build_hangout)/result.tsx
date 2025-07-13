@@ -386,8 +386,11 @@ export default function ResultScreen() {
             height={undefined}
             data={results}
             onProgressChange={progress}
+            loop={false}
             renderItem={({item, index}) => (
-              <ResultCard key={`result_${index}`} place={item} />
+              <View style={{marginHorizontal: 10}}>
+                <ResultCard key={`result_${index}`} place={item} />
+              </View>
             )}
           />
     
@@ -395,7 +398,7 @@ export default function ResultScreen() {
             progress={progress}
             data={results}
             dotStyle={{ backgroundColor: "rgba(0,0,0,0.2)", borderRadius: 50 }}
-            containerStyle={{ gap: 5, marginTop: 10 }}
+            containerStyle={{ gap: 5, marginTop: 20 }}
             onPress={onPressPagination}
           />
         </View>
@@ -419,6 +422,6 @@ const styles = StyleSheet.create({
   carouselWrapper: {
     flex: 1, 
     width: '100%', 
-    marginBottom: 60 
+    marginBottom: 100 
   }
 });
