@@ -6,7 +6,7 @@ import { GoogleGenAI } from '@google/genai';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Text, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Button, Surface, Text, TouchableRipple, useTheme } from 'react-native-paper';
 import { useSharedValue } from "react-native-reanimated";
 import Carousel, {
   ICarouselInstance,
@@ -21,7 +21,20 @@ export default function ResultScreen() {
   const [results, setResults] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedResults, setSelectedResults] = useState<Place[]>([]);
 
+  const selectResult = (place: Place) => {
+    const selectedResult = selectedResults.find(result => result.id === place.id);
+    let copy = []
+    if (selectedResult) {
+      copy = selectedResults.filter(result => result.id !== place.id);
+    } else {
+      copy = [...selectedResults]
+      copy.push(place);
+    }
+    console.log(copy);
+    setSelectedResults(copy);
+  }
   const errorMessage = 'There was an error retrieving recommendations. Please try again later.';
   const userInfo = {
     age: 29,
@@ -93,6 +106,10 @@ export default function ResultScreen() {
     } else {
       return 3000
     }
+  }
+
+  const advance = () => {
+    console.log('ADVANCE');
   }
 
   const screenWidth = Dimensions.get('window').width;
@@ -212,155 +229,6 @@ export default function ResultScreen() {
   useEffect(() => {
     if (hangoutData) {
       getGeminiRecs();
-      // const places = [
-      //   {
-      //     "id": "ChIJfyLfzJxZwokRUj6cyb40ClY",
-      //     "types": [
-      //       "bar_and_grill",
-      //       "bar",
-      //       "restaurant",
-      //       "food",
-      //       "point_of_interest",
-      //       "establishment"
-      //     ],
-      //     "rating": 4.4,
-      //     "userRatingCount": 563,
-      //     "displayName": {
-      //       "text": "Bk Backyard Bar",
-      //       "languageCode": "en"
-      //     },
-      //     "dineIn": true,
-      //     "servesLunch": true,
-      //     "servesDinner": true,
-      //     "servesBeer": true,
-      //     "servesWine": true,
-      //     "primaryType": "bar_and_grill",
-      //     "editorialSummary": {
-      //       "text": "Buzzing alfresco hangout whipping up burgers & finger foods, plus cocktails & draft beer.",
-      //       "languageCode": "en"
-      //     },
-      //     "outdoorSeating": true,
-      //     "liveMusic": true,
-      //     "servesCocktails": true,
-      //     "servesDessert": true,
-      //     "servesCoffee": true,
-      //     "goodForChildren": true,
-      //     "goodForGroups": true,
-      //     "goodForWatchingSports": true,
-      //     "generativeSummary": {
-      //       "overview": {
-      //         "text": "Spacious venue with picnic tables and a beach volleyball court, featuring DJs, sports on TV, and live music.",
-      //         "languageCode": "en-US"
-      //       },
-      //       "overviewFlagContentUri": "https://www.google.com/local/review/rap/report?postId=CiUweDg5YzI1OTljY2NkZjIyN2Y6MHg1NjBhMzRiZWM5OWMzZTUyMAI&d=17924085&t=12",
-      //       "disclosureText": {
-      //         "text": "Summarized with Gemini",
-      //         "languageCode": "en-US"
-      //       }
-      //     },
-      //     "reviewSummary": {
-      //       "text": {
-      //         "text": "People say this bar and grill offers great drinks, games, and live music. They also highlight the fun, lively, and welcoming atmosphere, and the friendly and attentive bartenders.\n\nOther reviews mention the drinks can be expensive.",
-      //         "languageCode": "en-US"
-      //       },
-      //       "flagContentUri": "https://www.google.com/local/review/rap/report?postId=5%401:CAIQACodChtyc19oOkRveHhBOFpWTDNBZEU3NGlncFRSZ1E%7CCAIQACoqChtyc19oOkRveHhBOFpWTDNBZEU3NGlncFRSZ1ESCwju3_XCBhDm9rkb&d=17924085&t=8",
-      //       "disclosureText": {
-      //         "text": "Summarized with Gemini",
-      //         "languageCode": "en-US"
-      //       },
-      //       "reviewsUri": "https://www.google.com/maps/place//data=!4m4!3m3!1s0x89c2599cccdf227f:0x560a34bec99c3e52!9m1!1b1"
-      //     }
-      //   },
-      //   {
-      //     "id": "ChIJhZwYPkNZwokR5br0SgJqx2o",
-      //     "types": [
-      //       "bar",
-      //       "point_of_interest",
-      //       "establishment"
-      //     ],
-      //     "rating": 4.3,
-      //     "priceLevel": "PRICE_LEVEL_MODERATE",
-      //     "userRatingCount": 960,
-      //     "displayName": {
-      //       "text": "The Gutter",
-      //       "languageCode": "en"
-      //     },
-      //     "dineIn": true,
-      //     "servesBeer": true,
-      //     "servesWine": true,
-      //     "primaryType": "bar",
-      //     "editorialSummary": {
-      //       "text": "Old-school, low-tech bowling alley with an attached barroom that hosts live music.",
-      //       "languageCode": "en"
-      //     },
-      //     "outdoorSeating": true,
-      //     "liveMusic": true,
-      //     "servesCocktails": true,
-      //     "goodForGroups": true,
-      //     "goodForWatchingSports": true,
-      //     "reviewSummary": {
-      //       "text": {
-      //         "text": "People say this bar offers bowling and drinks. They also highlight the authentic experience, fun atmosphere, and friendly staff.\n\nSome reviews mention there can be a long wait.",
-      //         "languageCode": "en-US"
-      //       },
-      //       "flagContentUri": "https://www.google.com/local/review/rap/report?postId=5%401:CAIQACodChtyc19oOkdBaGtGSmFXbWxzRmhOMUpFZkpocHc%7CCAIQACorChtyc19oOkdBaGtGSmFXbWxzRmhOMUpFZkpocHcSDAiW6vXCBhCq2KKgAw&d=17924085&t=8",
-      //       "disclosureText": {
-      //         "text": "Summarized with Gemini",
-      //         "languageCode": "en-US"
-      //       },
-      //       "reviewsUri": "https://www.google.com/maps/place//data=!4m4!3m3!1s0x89c259433e189c85:0x6ac76a024af4bae5!9m1!1b1"
-      //     }
-      //   },
-      //   {
-      //     "id": "ChIJofE6JSBZwokRkOG-yB0pXns",
-      //     "types": [
-      //       "bar",
-      //       "point_of_interest",
-      //       "establishment"
-      //     ],
-      //     "rating": 4.3,
-      //     "userRatingCount": 228,
-      //     "displayName": {
-      //       "text": "Twins Lounge",
-      //       "languageCode": "en"
-      //     },
-      //     "dineIn": true,
-      //     "servesBeer": true,
-      //     "servesWine": true,
-      //     "primaryType": "bar",
-      //     "outdoorSeating": true,
-      //     "liveMusic": false,
-      //     "servesCocktails": true,
-      //     "goodForChildren": false,
-      //     "goodForGroups": true,
-      //     "goodForWatchingSports": false,
-      //     "generativeSummary": {
-      //       "overview": {
-      //         "text": "Mid-century modern-style bar offering beer, cocktails, pool tables, and a patio.",
-      //         "languageCode": "en-US"
-      //       },
-      //       "overviewFlagContentUri": "https://www.google.com/local/review/rap/report?postId=CiUweDg5YzI1OTIwMjUzYWYxYTE6MHg3YjVlMjkxZGM4YmVlMTkwMAI&d=17924085&t=12",
-      //       "disclosureText": {
-      //         "text": "Summarized with Gemini",
-      //         "languageCode": "en-US"
-      //       }
-      //     },
-      //     "reviewSummary": {
-      //       "text": {
-      //         "text": "People say this bar offers cheap and tasty drinks, including a solid Old Fashioned and a spicy margarita. They also highlight the cozy atmosphere, cool decoration, and the presence of pool tables and a photo booth.\n\nOther reviews mention the bartenders can be unfriendly.",
-      //         "languageCode": "en-US"
-      //       },
-      //       "flagContentUri": "https://www.google.com/local/review/rap/report?postId=5%401:CAIQACodChtyc19oOk1PcS1DLU56cTBwZmJLX2ZsMGJwUFE%7CCAIQACoqChtyc19oOk1PcS1DLU56cTBwZmJLX2ZsMGJwUFESCwjLjuvCBhDE0PIa&d=17924085&t=8",
-      //       "disclosureText": {
-      //         "text": "Summarized with Gemini",
-      //         "languageCode": "en-US"
-      //       },
-      //       "reviewsUri": "https://www.google.com/maps/place//data=!4m4!3m3!1s0x89c25920253af1a1:0x7b5e291dc8bee190!9m1!1b1"
-      //     }
-      //   }
-      // ];
-      // setResults(places);
-      // setLoading(false);
     }
   }, [hangoutData])
 
@@ -377,31 +245,63 @@ export default function ResultScreen() {
     )
   } else if (!loading && !error && screenWidth) {
     return (
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <BuildHangoutNavigator onPrev={onPrev} nextDisabled={true} />
-        <View style={styles.carouselWrapper}>
-          <Carousel
-            ref={ref}
-            width={screenWidth - (CONTAINER_PADDING * 2)}
-            height={undefined}
-            data={results}
-            onProgressChange={progress}
-            loop={false}
-            renderItem={({item, index}) => (
-              <View style={{marginHorizontal: 10}}>
-                <ResultCard key={`result_${index}`} place={item} />
-              </View>
-            )}
-          />
-    
-          <Pagination.Basic
-            progress={progress}
-            data={results}
-            dotStyle={{ backgroundColor: "rgba(0,0,0,0.2)", borderRadius: 50 }}
-            containerStyle={{ gap: 5, marginTop: 20 }}
-            onPress={onPressPagination}
-          />
+      <View style={styles.container}>
+        <View style={{...styles.container, padding: CONTAINER_PADDING, backgroundColor: theme.colors.background}}>
+          <BuildHangoutNavigator onPrev={onPrev} nextDisabled={true} />
+          <View style={styles.carouselWrapper}>
+            <Carousel
+              ref={ref}
+              width={screenWidth - (CONTAINER_PADDING * 2)}
+              height={undefined}
+              data={results}
+              onProgressChange={progress}
+              loop={false}
+              renderItem={({item, index}) => (
+                <TouchableRipple 
+                  style={{
+                    marginHorizontal: 10,
+                    borderRadius: 30,
+                    borderWidth: 2,
+                    borderColor: selectedResults.find(result => result.id === item.id)
+                      ? theme.colors.primary
+                      : theme.colors.onBackground
+                  }} 
+                  onPress={() => selectResult(item)}
+                >
+                  <ResultCard key={`result_${index}`} place={item} />
+                </TouchableRipple>
+              )}
+            />
+      
+            <Pagination.Basic
+              progress={progress}
+              data={results}
+              dotStyle={{ backgroundColor: "rgba(0,0,0,0.2)", borderRadius: 50 }}
+              containerStyle={{ gap: 5, marginTop: 20 }}
+              onPress={onPressPagination}
+            />
+          </View>
         </View>
+                  {
+            selectedResults.length > 0 && (
+              <Surface
+                style={styles.bottomBanner}
+              >
+                <Text style={{flex: 1, marginRight: 18}}>
+                  {selectedResults.length} Selected
+                </Text>
+                <Button
+                  onPress={advance}
+                  mode='contained'
+                  buttonColor={theme.colors.secondary}
+                  textColor={theme.colors.onSecondary}
+                  style={{borderRadius: 10}}
+                >
+                  CONTINUE
+                </Button>
+              </Surface>
+            )
+          }
       </View>
     )
   } else {
@@ -416,12 +316,19 @@ export default function ResultScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    padding: CONTAINER_PADDING,
   },
   carouselWrapper: {
     flex: 1, 
     width: '100%', 
     marginBottom: 100 
-  }
+  },
+  bottomBanner: {
+  width: '100%', 
+  flexDirection: 'row', 
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  paddingHorizontal: 40,
+  paddingTop: 15,
+  paddingBottom: 50
+}
 });

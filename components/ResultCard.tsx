@@ -98,7 +98,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
                       </Text>
                     )
                   }
-                  <View>
+                  <View style={{flex: 1}}>
                     <Image source={{ uri: detailedPlace.photoUrl }} style={styles.placeImage} resizeMode="cover" />
                     {detailedPlace.photoAttributions && detailedPlace.photoAttributions.length > 0 && (
                       <View>
@@ -150,19 +150,18 @@ const styles = StyleSheet.create({
   card: {
     flexGrow: 1,
     padding: 20,
-    borderRadius: 30,
-    borderWidth: 2,
     width: '100%',
     rowGap: 20,
-    height: '100%'
+    height: '100%',
+    borderRadius: 30,
   },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center'
   },
   placeImage: {
-    width: '100%', // Added width
-    height: 300,    // Added height
+    width: '100%',
+    flex: 1,
     borderRadius: 8,
     marginBottom: 8,
   },
