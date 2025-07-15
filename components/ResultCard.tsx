@@ -114,7 +114,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
                       detailedPlace.websiteUri && (
                         <Button 
                           mode='outlined' 
-                          style={{marginRight: 20, minWidth: 200 }} 
+                          style={{marginRight: 20, minWidth: 150 }} 
                           onPress={() => {
                             if (detailedPlace.websiteUri) {
                             Linking.openURL(detailedPlace.websiteUri)
@@ -126,6 +126,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
                     <Button 
                       mode='outlined' 
                       onPress={openPlaceInGoogleMaps}
+                      style={{minWidth: 150}}
                     >
                       MAP
                     </Button>

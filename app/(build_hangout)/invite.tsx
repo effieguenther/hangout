@@ -1,8 +1,8 @@
-// app/(app)/preferences.js
 import BuildHangoutNavigator from '@/components/BuildHangoutNavigator';
 import { useHangoutBuilder } from '@/context/BuildHangoutContext';
+import useContacts from '@/hooks/useContacts';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import {
   Avatar,
@@ -25,14 +25,32 @@ export default function InviteScreen() {
   const theme = useTheme();
   const { hangoutData, updateHangoutData } = useHangoutBuilder();
   const [searchQuery, setSearchQuery] = useState('')
-  const [contacts, setContacts] = useState<Contact[]>([
-    {id: '0', firstName: 'Effie', lastName: 'Guenther', initials: 'EG'},
-    {id: '1', firstName: 'Jesselina', lastName: 'Rana', initials: 'JR'},
-    {id: '2', firstName: 'Mamu', lastName: '', initials: 'M'},
-    {id: '3', firstName: 'Sophie', lastName: 'Wasel', initials: 'SW'}
-  ]);
+  const [displayedContacts, setDisplayedContacts] = useState<Contact[]>([]);
   const [invitedContacts, setInvitedContacts] = useState<Contact[]>(hangoutData.invitedContacts || []);
-  
+  const { allContacts, loading: contactsLoading, error: contactsError } = useContacts();
+
+  // manage displayed contacts state
+  useEffect(() => {
+    if (contactsLoading || contactsError) {
+      setDisplayedContacts([]);
+      return;
+    }
+
+    let filteredAndSortedContacts: Contact[];
+
+    if (searchQuery) {
+      const filtered = allContacts.filter(contact => {
+        const fullName = `${contact.firstName} ${contact.lastName}`.trim().toLowerCase();
+        return fullName.includes(searchQuery.toLowerCase());
+      });
+      filteredAndSortedContacts = filtered.slice(0, 30);
+    } else {
+      filteredAndSortedContacts = allContacts.slice(0, 30);
+    }
+    setDisplayedContacts(filteredAndSortedContacts);
+  }, [searchQuery, allContacts, contactsLoading, contactsError]);
+
+
   const toggleInviteContact = (contact: Contact) => {
     const isAlreadyInvited = invitedContacts.some(
       (invited) => invited.id === contact.id
@@ -61,7 +79,7 @@ export default function InviteScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={{...styles.container, padding: 20, backgroundColor: theme.colors.background}}>
+      <View style={{...styles.container, paddingHorizontal: 20, backgroundColor: theme.colors.background}}>
         <BuildHangoutNavigator onNext={advance} onPrev={goBack} />
         <Text variant="titleLarge" style={{ color: theme.colors.onBackground, marginVertical: 20 }}>
           INVITE
@@ -75,23 +93,35 @@ export default function InviteScreen() {
           elevation={1}
         />
         <ScrollView style={{width: '100%', padding: 10}}>
-          {contacts.map((contact, index) => (
-            <View style={styles.contactContainer} key={`contact_${index}`}>
-              <Avatar.Text 
-                size={34}
-                label={contact.initials} 
-                style={{backgroundColor: theme.colors.tertiary}}
-                color={theme.colors.onTertiary}
-              />
-              <Text style={{flex: 1}}>
-                {contact.firstName} {contact.lastName}
-              </Text>
-              <Checkbox.Android
-                status={invitedContacts.some((invited) => invited.id === contact.id) ? 'checked' : 'unchecked'}
-                onPress={() => toggleInviteContact(contact)}
-              />
-            </View>
-          ))}
+          {contactsLoading ? (
+            <Text style={{textAlign: 'center', marginTop: 20}}>Loading contacts...</Text>
+          ) : contactsError ? (
+            <Text style={{textAlign: 'center', marginTop: 20, color: theme.colors.error}}>
+              Error: {contactsError}
+            </Text>
+          ) : displayedContacts.length > 0 ? (
+            displayedContacts.map((contact) => (
+              <View style={styles.contactContainer} key={`contact_${contact.id}`}>
+                <Avatar.Text
+                  size={34}
+                  label={contact.initials}
+                  style={{backgroundColor: theme.colors.tertiary}}
+                  color={theme.colors.onTertiary}
+                />
+                <Text style={{flex: 1}}>
+                  {contact.firstName} {contact.lastName}
+                </Text>
+                <Checkbox.Android
+                  status={invitedContacts.some((invited) => invited.id === contact.id) ? 'checked' : 'unchecked'}
+                  onPress={() => toggleInviteContact(contact)}
+                />
+              </View>
+            ))
+          ) : (
+            <Text style={{textAlign: 'center', marginTop: 20}}>
+              {searchQuery ? `No contacts found for "${searchQuery}".` : 'No contacts available.'}
+            </Text>
+          )}
         </ScrollView>
       </View>
       {
@@ -99,8 +129,15 @@ export default function InviteScreen() {
           <Surface
             style={styles.bottomBanner}
           >
-            <Text>
-              {invitedContacts.length} Selected
+            <Text style={{flex: 1, marginRight: 18}}>
+              {
+                invitedContacts.map((contact, idx) => (
+                  <Text key={contact.id} style={{flexWrap: 'wrap'}}>
+                    {contact.firstName + ' ' + (contact.lastName && contact.lastName[0])}
+                    {idx < invitedContacts.length - 1 && ', '}
+                  </Text>
+                ))
+              }
             </Text>
             <Button
               onPress={advance}
@@ -144,6 +181,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 40,
     paddingTop: 15,
-    paddingBottom: 50,
+    paddingBottom: 50
   }
 });

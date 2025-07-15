@@ -1,13 +1,13 @@
+import { router } from 'expo-router';
 import {
   StyleSheet,
   View
 } from 'react-native';
-import { Text, TouchableRipple, Surface } from 'react-native-paper'; // Import Button from react-native-paper
-import { router } from 'expo-router';
+import { Surface, Text, TouchableRipple } from 'react-native-paper'; // Import Button from react-native-paper
 
 export default function IndexScreen() {
   return (
-    <View style={styles.container}> {/* Apply styles directly to the View */}
+    <View style={styles.container}>
       <Text variant="displayLarge" style={{textAlign: 'center'}}>
         LET'S HANG
       </Text>
