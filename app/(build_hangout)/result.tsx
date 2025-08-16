@@ -1,12 +1,21 @@
 import BuildHangoutNavigator from '@/components/BuildHangoutNavigator';
 import ResultCard from '@/components/ResultCard';
+import SendTextModal from '@/components/SendTextModal';
 import { useHangoutBuilder } from '@/context/BuildHangoutContext';
 import { Place } from '@/types/place';
 import { GoogleGenAI } from '@google/genai';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Button, Surface, Text, TouchableRipple, useTheme } from 'react-native-paper';
+import {
+  ActivityIndicator,
+  Button,
+  Portal,
+  Surface,
+  Text,
+  TouchableRipple,
+  useTheme
+} from 'react-native-paper';
 import { useSharedValue } from "react-native-reanimated";
 import Carousel, {
   ICarouselInstance,
@@ -19,9 +28,11 @@ export default function ResultScreen() {
   const theme = useTheme();
   const { hangoutData} = useHangoutBuilder();
   const [results, setResults] = useState<Place[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
   const [selectedResults, setSelectedResults] = useState<Place[]>([]);
+  const [ModalVisible, setModalVisible] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>('');
 
   const selectResult = (place: Place) => {
     const selectedResult = selectedResults.find(result => result.id === place.id);
@@ -108,8 +119,31 @@ export default function ResultScreen() {
     }
   }
 
-  const advance = () => {
-    console.log('ADVANCE');
+  const buildText = () => {
+    const message = ['Hey'];
+    if (hangoutData.invitedContacts) {
+      message.push(' ' + hangoutData?.invitedContacts[0]?.firstName)
+      const contactsLen = hangoutData?.invitedContacts?.length;
+      if (contactsLen === 2) {
+        message.push(` and ${hangoutData.invitedContacts[1].firstName}`)
+      } else if (contactsLen > 1) {
+        message.push(', ');
+          for (let i = 1; i < contactsLen; i++) {
+          if (i + 1 === contactsLen) {
+            message.push(`and ${hangoutData?.invitedContacts[i]?.firstName}`)
+          } else if (i + 1 < contactsLen) {
+            message.push(`${hangoutData?.invitedContacts[i]?.firstName}, `)
+          }
+        }
+      }
+    }
+    message.push(", let's go to one of these places?\n\n")
+    for (let i = 0; i < selectedResults.length; i++) {
+      message.push(selectedResults[i]?.displayName?.text + '\n')
+    }
+    console.log(message);
+    console.log(message.join(''));
+    return message.join('');
   }
 
   const screenWidth = Dimensions.get('window').width;
@@ -232,6 +266,10 @@ export default function ResultScreen() {
     }
   }, [hangoutData])
 
+  useEffect(() => {
+    setMessage(buildText());
+  }, [selectedResults.length])
+
   if (!loading && error) {
     return (
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -246,6 +284,13 @@ export default function ResultScreen() {
   } else if (!loading && !error && screenWidth) {
     return (
       <View style={styles.container}>
+        <Portal>
+          <SendTextModal 
+            visible={ModalVisible}
+            setVisible={setModalVisible}
+            message={message}
+          />
+        </Portal>
         <View style={{...styles.container, padding: CONTAINER_PADDING, backgroundColor: theme.colors.background}}>
           <BuildHangoutNavigator onPrev={onPrev} nextDisabled={true} />
           <View style={styles.carouselWrapper}>
@@ -282,7 +327,7 @@ export default function ResultScreen() {
             />
           </View>
         </View>
-                  {
+          {
             selectedResults.length > 0 && (
               <Surface
                 style={styles.bottomBanner}
@@ -291,7 +336,7 @@ export default function ResultScreen() {
                   {selectedResults.length} Selected
                 </Text>
                 <Button
-                  onPress={advance}
+                  onPress={() => setModalVisible(true)}
                   mode='contained'
                   buttonColor={theme.colors.secondary}
                   textColor={theme.colors.onSecondary}
@@ -306,8 +351,20 @@ export default function ResultScreen() {
     )
   } else {
     return (
-      <View style={{...styles.container, backgroundColor: theme.colors.background, justifyContent: 'center' }}>
+      <View style={{
+        ...styles.container, 
+        backgroundColor: theme.colors.background, 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        paddingHorizontal: 70
+      }}>
         <ActivityIndicator animating={true} size='large' />
+        <Text style={{
+          textAlign: 'center',
+          marginTop: 40
+        }}>
+          Just a moment while we find the best options for you…
+        </Text>
       </View>
     )
   } 
@@ -323,12 +380,12 @@ const styles = StyleSheet.create({
     marginBottom: 100 
   },
   bottomBanner: {
-  width: '100%', 
-  flexDirection: 'row', 
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  paddingHorizontal: 40,
-  paddingTop: 15,
-  paddingBottom: 50
-}
+    width: '100%', 
+    flexDirection: 'row', 
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 40,
+    paddingTop: 15,
+    paddingBottom: 50
+  }
 });
