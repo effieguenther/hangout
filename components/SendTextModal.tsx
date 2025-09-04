@@ -5,8 +5,9 @@ import {
   TextInput,
   useTheme
 } from 'react-native-paper';
+import SMSButton from './SMSButton';
 
-const SendTextModal = ({ visible, setVisible, message }) => {
+const SendTextModal = ({ visible, setVisible, message = '', recipients = [] }) => {
   const theme = useTheme();
 
   const hideModal = () => setVisible(false);
@@ -35,6 +36,10 @@ const SendTextModal = ({ visible, setVisible, message }) => {
         style={{width: '100%'}}
         mode='outlined'
       />
+      <SMSButton
+        recipients={recipients}
+        message={message}
+      />
     </Modal>
   );
 };
@@ -47,6 +52,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     width: '90%',
     alignSelf: 'center',
-    borderRadius: 10,   
+    borderRadius: 10
   }
 })

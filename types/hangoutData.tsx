@@ -8,10 +8,11 @@ export interface MarkedDay {
 }
 
 export interface Contact {
-  id: string;
+  id: string | undefined;
   firstName: string;
   lastName: string;
   initials: string;
+  phoneNumber: string | undefined;
 }
 
 export interface Filters {

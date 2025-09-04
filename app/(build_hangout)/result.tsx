@@ -3,6 +3,7 @@ import ResultCard from '@/components/ResultCard';
 import SendTextModal from '@/components/SendTextModal';
 import { useHangoutBuilder } from '@/context/BuildHangoutContext';
 import { Place } from '@/types/place';
+import { buildText } from '@/utils/buildText';
 import { GoogleGenAI } from '@google/genai';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
@@ -33,6 +34,8 @@ export default function ResultScreen() {
   const [selectedResults, setSelectedResults] = useState<Place[]>([]);
   const [ModalVisible, setModalVisible] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
+  const recipients = hangoutData?.invitedContacts?.map(contact => contact.phoneNumber);
+  console.log(recipients);
 
   const selectResult = (place: Place) => {
     const selectedResult = selectedResults.find(result => result.id === place.id);
@@ -117,33 +120,6 @@ export default function ResultScreen() {
     } else {
       return 3000
     }
-  }
-
-  const buildText = () => {
-    const message = ['Hey'];
-    if (hangoutData.invitedContacts) {
-      message.push(' ' + hangoutData?.invitedContacts[0]?.firstName)
-      const contactsLen = hangoutData?.invitedContacts?.length;
-      if (contactsLen === 2) {
-        message.push(` and ${hangoutData.invitedContacts[1].firstName}`)
-      } else if (contactsLen > 1) {
-        message.push(', ');
-          for (let i = 1; i < contactsLen; i++) {
-          if (i + 1 === contactsLen) {
-            message.push(`and ${hangoutData?.invitedContacts[i]?.firstName}`)
-          } else if (i + 1 < contactsLen) {
-            message.push(`${hangoutData?.invitedContacts[i]?.firstName}, `)
-          }
-        }
-      }
-    }
-    message.push(", let's go to one of these places?\n\n")
-    for (let i = 0; i < selectedResults.length; i++) {
-      message.push(selectedResults[i]?.displayName?.text + '\n')
-    }
-    console.log(message);
-    console.log(message.join(''));
-    return message.join('');
   }
 
   const screenWidth = Dimensions.get('window').width;
@@ -267,7 +243,7 @@ export default function ResultScreen() {
   }, [hangoutData])
 
   useEffect(() => {
-    setMessage(buildText());
+    setMessage(buildText(hangoutData, selectedResults));
   }, [selectedResults.length])
 
   if (!loading && error) {
@@ -289,6 +265,7 @@ export default function ResultScreen() {
             visible={ModalVisible}
             setVisible={setModalVisible}
             message={message}
+            recipients={recipients}
           />
         </Portal>
         <View style={{...styles.container, padding: CONTAINER_PADDING, backgroundColor: theme.colors.background}}>

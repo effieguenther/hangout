@@ -1,18 +1,13 @@
+import { Contact } from '@/types/hangoutData';
 import * as Contacts from 'expo-contacts';
 import { useEffect, useState } from 'react';
-
-interface Contact {
-  id: string;
-  firstName: string;
-  lastName: string;
-  initials: string;
-}
 
 const transformContact = (rawContact: Contacts.Contact): Contact => {
   const firstName = rawContact.firstName || '';
   const lastName = rawContact.lastName || '';
   const name = rawContact.name || '';
   let initials = '';
+  const phoneNumbers = rawContact.phoneNumbers || [];
 
   // Generate initials: first letter of first name + first letter of last name
   if (firstName && lastName) {
@@ -25,12 +20,15 @@ const transformContact = (rawContact: Contacts.Contact): Contact => {
     initials = name.charAt(0);
   }
 
+  const primaryPhoneNumber = phoneNumbers?.find(number => number.isPrimary);
+
   return {
     id: rawContact.id,
     firstName: firstName || name,
     lastName: lastName,
     initials: initials.toUpperCase(),
-  };
+    phoneNumber: primaryPhoneNumber?.number || phoneNumbers[0]?.number,
+  }
 };
 
 const sortContacts = (a: Contact, b: Contact) => {
@@ -53,7 +51,7 @@ const useContacts = () => {
 
         if (status === 'granted') {
           const { data } = await Contacts.getContactsAsync({
-            fields: [Contacts.Fields.Name],
+            fields: [Contacts.Fields.Name, Contacts.Fields.PhoneNumbers],
           });
 
           if (data.length > 0) {
