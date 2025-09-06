@@ -1,8 +1,14 @@
+import Contact from '@/types/hangoutData/Contact';
 import React from 'react';
 import { Alert, Linking, Platform, StyleSheet, View } from 'react-native';
 import { IconButton, useTheme } from 'react-native-paper';
 
-const SMSButton = ({ recipients = [], message = '' }) => {
+interface SMSButtonProps {
+  recipients: Contact[];
+  message: string;
+}
+
+const SMSButton: React.FC<SMSButtonProps> = ({ recipients = [], message = '' }) => {
   const theme = useTheme();
   const handleSendSMS = async () => {
     const recipientString = recipients.join(',');

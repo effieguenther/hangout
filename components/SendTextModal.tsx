@@ -1,3 +1,4 @@
+import Contact from '@/types/hangoutData/Contact';
 import { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import {
@@ -7,11 +8,16 @@ import {
 } from 'react-native-paper';
 import SMSButton from './SMSButton';
 
-const SendTextModal = ({ visible, setVisible, message = '', recipients = [] }) => {
-  const theme = useTheme();
+interface SendTextModalProps {
+  visible: boolean;
+  setVisible: Function;
+  message: string;
+  recipients: Contact[];
+}
 
+const SendTextModal: React.FC<SendTextModalProps> = ({ visible, setVisible, message = '', recipients = [] }) => {
+  const theme = useTheme();
   const hideModal = () => setVisible(false);
-  
   const [text, setText] = useState(message);
   
   useEffect(() => {
