@@ -57,7 +57,7 @@ export default function ResultScreen() {
   };
 
   const onPrev = () => {
-    router.push('/(build_hangout)/review');
+    router.dismiss();
   }
 
   const {results, loading, error} = useHangoutResults(hangoutData);
@@ -87,7 +87,6 @@ export default function ResultScreen() {
   } else if (error) {
     return (
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <BuildHangoutNavigator onPrev={onPrev} nextDisabled={true} />
         <View style={{flex: 1, justifyContent: 'center', padding: 10}}>
           <Text variant="bodyLarge" style={{ textAlign: 'center' }}>
             {error}

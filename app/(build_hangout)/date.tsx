@@ -1,4 +1,3 @@
-import BuildHangoutNavigator from '@/components/BuildHangoutNavigator';
 import { useHangoutBuilder } from '@/context/BuildHangoutContext';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -82,6 +81,11 @@ export default function DateScreen() {
     }
   }, [selectedDay, markedDays]);
 
+  useEffect(() => {
+    updateHangoutData({ date: markedDays });
+    }, [markedDays]
+  )
+
   // Function to handle option selection (Morning/Afternoon/Evening)
   const selectOption = (index: number) => {
     const copyOptions = [...options];
@@ -138,20 +142,13 @@ export default function DateScreen() {
     return marked;
   };
 
-  const advance = () => {
-    updateHangoutData({ date: markedDays });
+  const onNext = () => {
     router.push('/(build_hangout)/filters');
-  }
-
-  const goBack = () => {
-    updateHangoutData({ date: markedDays });
-    router.push('/(build_hangout)/invite');
   }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={{...styles.container, padding: 20}}>
-        <BuildHangoutNavigator onNext={advance} onPrev={goBack} />
         <Text variant="bodySmall" style={{ paddingVertical: 20 }}>
           SELECT ALL THAT APPLY
         </Text>
@@ -202,7 +199,7 @@ export default function DateScreen() {
               {markedDays.length} Selected
             </Text>
             <Button
-              onPress={advance}
+              onPress={onNext}
               mode='contained'
               buttonColor={theme.colors.secondary}
               textColor={theme.colors.onSecondary}

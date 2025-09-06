@@ -1,4 +1,3 @@
-import BuildHangoutNavigator from '@/components/BuildHangoutNavigator';
 import { useHangoutBuilder } from '@/context/BuildHangoutContext';
 import useContacts from '@/hooks/useContacts';
 import { router } from 'expo-router';
@@ -65,22 +64,16 @@ export default function InviteScreen() {
       updatedInvitedContacts = [...invitedContacts, contact];
     }
     setInvitedContacts(updatedInvitedContacts);
+    updateHangoutData({ invitedContacts: updatedInvitedContacts });
   };
 
-  const advance = () => {
-    updateHangoutData({ invitedContacts });
+  const onNext = () => {
     router.push('/(build_hangout)/date');
-  }
-
-  const goBack = () => {
-    updateHangoutData({ invitedContacts });
-    router.push('/(tabs)/home');
   }
 
   return (
     <View style={styles.container}>
       <View style={{...styles.container, paddingHorizontal: 20, backgroundColor: theme.colors.background}}>
-        <BuildHangoutNavigator onNext={advance} onPrev={goBack} />
         <Text variant="titleLarge" style={{ color: theme.colors.onBackground, marginVertical: 20 }}>
           INVITE
         </Text>
@@ -140,7 +133,7 @@ export default function InviteScreen() {
               }
             </Text>
             <Button
-              onPress={advance}
+              onPress={onNext}
               mode='contained'
               buttonColor={theme.colors.secondary}
               textColor={theme.colors.onSecondary}

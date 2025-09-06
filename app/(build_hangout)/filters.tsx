@@ -1,13 +1,11 @@
-import BuildHangoutNavigator from '@/components/BuildHangoutNavigator';
 import { useHangoutBuilder } from '@/context/BuildHangoutContext';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Badge, List, Surface, Text, TouchableRipple, useTheme } from 'react-native-paper';
 
 export default function FiltersScreen() {
   const theme = useTheme();
-  const backgroundColor = theme.colors.background;
   const onBackgroundColor = theme.colors.onBackground;
   const primaryColor = theme.colors.primary;
   const onPrimaryColor = theme.colors.onPrimary;
@@ -58,30 +56,26 @@ export default function FiltersScreen() {
     copy[idx].isSelected = !copy[idx].isSelected;
     setBudgetFilters(copy);
   }
-  const prepareFilterData = () => {
-    const activityArr = activityFilters.filter(activity => activity.isSelected).map(activity => activity.value);
-    const budgetArr = budgetFilters.filter(budget => budget.isSelected).map(budget => budget.value);
-    return {
-      activity: activityArr.length > 0 ? activityArr : [],
-      distance: distanceFilter,
-      budget: budgetArr.length > 0 ? budgetArr : []
-    }
-  }
-  const onNext = () => {
-    const filters = prepareFilterData();
-    updateHangoutData({ filters });
-    router.push('/(build_hangout)/review');
-  }
 
-  const goBack = () => {
-    const filters = prepareFilterData();
-    updateHangoutData({ filters });
-    router.push('/(build_hangout)/date');
+  // update context when filters change
+  useEffect(() => {
+    const activityArr = activityFilters.filter(a => a.isSelected).map(a => a.value);
+    const budgetArr = budgetFilters.filter(b => b.isSelected).map(b => b.value);
+    updateHangoutData({
+      filters: {
+        activity: activityArr,
+        distance: distanceFilter || '',
+        budget: budgetArr
+      }
+    });
+  }, [selectedDistanceCount, selectedActivityCount, selectedBudgetCount]);
+
+  const onNext = () => {
+    router.push('/(build_hangout)/review');
   }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <BuildHangoutNavigator onNext={onNext} onPrev={goBack} />
       <ScrollView style={{width: '100%', padding: 20}} contentContainerStyle={{alignItems: 'center'}}>
         <Text variant="bodyMedium">
           ALL SET?

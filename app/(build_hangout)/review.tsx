@@ -1,4 +1,3 @@
-import BuildHangoutNavigator from '@/components/BuildHangoutNavigator';
 import { useHangoutBuilder } from '@/context/BuildHangoutContext';
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -7,16 +6,13 @@ import { IconButton, Surface, Text, TouchableRipple, useTheme } from 'react-nati
 export default function ResultScreen() {
   const theme = useTheme();
   const { hangoutData } = useHangoutBuilder();
+  console.log(hangoutData)
 
-  const onPrev = () => {
-    router.push('/(build_hangout)/filters');
-  }
   const onNext = () => {
     router.push('/(build_hangout)/result');
   }
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <BuildHangoutNavigator onPrev={onPrev} onNext={onNext} />
       <Text variant="titleLarge" style={{ color: theme.colors.onBackground, marginTop: 20 }}>
         REVIEW
       </Text>
