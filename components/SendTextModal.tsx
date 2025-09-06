@@ -1,4 +1,3 @@
-import Contact from '@/types/hangoutData/Contact';
 import { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import {
@@ -12,7 +11,7 @@ interface SendTextModalProps {
   visible: boolean;
   setVisible: Function;
   message: string;
-  recipients: Contact[];
+  recipients: string[];
 }
 
 const SendTextModal: React.FC<SendTextModalProps> = ({ visible, setVisible, message = '', recipients = [] }) => {

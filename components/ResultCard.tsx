@@ -21,20 +21,23 @@ const ResultCard: React.FC<ResultCardProps> = ({ place }) => {
 
   const priceLevel = place.priceLevel ? priceLevelMap[place.priceLevel] : null;
 
-  const openPlaceInGoogleMaps = () => {
-    if (place.id && place.displayName?.text) {
-      const encodedPlaceName = encodeURIComponent(place.displayName.text);
-      const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedPlaceName}&query_place_id=${place.id}`;
-
-      Linking.canOpenURL(googleMapsUrl).then(supported => {
-        if (supported) {
-          Linking.openURL(googleMapsUrl);
-        } else {
-          console.error("Don't know how to open Google Maps URL: " + googleMapsUrl);
-        }
-      }).catch(err => console.error('An error occurred', err));
-    } else {
+  const openPlaceInGoogleMaps = async () => {
+    if (!place.id || !place.displayName?.text) {
       console.warn('Cannot open in Google Maps: Place ID or display name missing');
+      return;
+    }
+    const encodedPlaceName = encodeURIComponent(place.displayName.text);
+    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedPlaceName}&query_place_id=${place.id}`;
+
+    try {
+      const supported = await Linking.canOpenURL(googleMapsUrl);
+      if (supported) {
+        await Linking.openURL(googleMapsUrl);
+      } else {
+        console.error(`Can't open Google Maps URL: ${googleMapsUrl}`);
+      }
+    } catch (err) {
+      console.error('An error occurred', err);
     }
   };
 

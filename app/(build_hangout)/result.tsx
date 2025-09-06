@@ -2,9 +2,9 @@ import BuildHangoutNavigator from '@/components/BuildHangoutNavigator';
 import ResultCard from '@/components/ResultCard';
 import SendTextModal from '@/components/SendTextModal';
 import { useHangoutBuilder } from '@/context/BuildHangoutContext';
+import { useHangoutResults } from '@/hooks/useHangoutResults';
 import Place from '@/types/Place';
 import { buildText } from '@/utils/buildText';
-import { GoogleGenAI } from '@google/genai';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
@@ -28,14 +28,10 @@ const CONTAINER_PADDING = 20;
 export default function ResultScreen() {
   const theme = useTheme();
   const { hangoutData} = useHangoutBuilder();
-  const [results, setResults] = useState<Place[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>('');
   const [selectedResults, setSelectedResults] = useState<Place[]>([]);
   const [ModalVisible, setModalVisible] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
   const recipients = hangoutData?.invitedContacts?.map(contact => contact.phoneNumber);
-  console.log(recipients);
 
   const selectResult = (place: Place) => {
     const selectedResult = selectedResults.find(result => result.id === place.id);
@@ -48,78 +44,6 @@ export default function ResultScreen() {
     }
     console.log(copy);
     setSelectedResults(copy);
-  }
-  const errorMessage = 'There was an error retrieving recommendations. Please try again later.';
-  const userInfo = {
-    age: 29,
-    gender: 'female'
-  }
-  const hangoutDataForAI = {
-    dates: hangoutData.date,
-    activity: hangoutData.filters?.activity,
-  }
-
-  const getBudgetData = (): String[] | null => {
-    if (hangoutData && hangoutData.filters?.budget?.length) {
-      const budgetData: String[] = []
-      hangoutData.filters.budget.forEach((budget: String) => {
-        if (budget === '$') {
-          budgetData.push('PRICE_LEVEL_INEXPENSIVE');
-          budgetData.push('PRICE_LEVEL_FREE');
-        } else if (budget === '$$') {
-          budgetData.push('PRICE_LEVEL_MODERATE');
-        } else if (budget === '$$$') {
-          budgetData.push('PRICE_LEVEL_EXPENSIVE');
-          budgetData.push('PRICE_LEVEL_VERY_EXPENSIVE');
-        }
-      })
-      return budgetData;
-    } else {
-      return null;
-    }
-  }
-
-  const getIncludedTypes = () => {
-    const types: string[] = [];
-    const activities = hangoutData.filters?.activity
-    if (activities && activities.length > 0) {
-      activities.forEach(activity => {
-        if (activity === 'DINNER' || activity === 'LUNCH' || activity === 'BRUNCH') {
-          if (!types.includes('restaurant')) {
-            types.push('restaurant');
-          }
-        }
-        if (activity === 'DRINKS') {
-          types.push('bar');
-        }
-        if (activity === 'COFFEE') {
-          types.push('cafe');
-          types.push('coffee_shop')
-        }
-        if (activity === 'PARK') {
-          types.push('park');
-        }
-      })
-    }
-    return types;
-  }
-  
-  const getRadius = () => {
-    const distance = hangoutData.filters?.distance;
-    if (hangoutData && distance) {
-      if (distance === 'UP TO 15 MINS AWAY') {
-        return 1500
-      } else if (distance === 'UP TO 30 MINS AWAY') {
-        return 3000
-      } else if (distance === 'UP TO 60 MINS AWAY') {
-        return 6000
-      } else if (distance === 'FIND A MIDPOINT') {
-        // TO DO: switch google API clal to 'search along route' when multiple user locations are available
-        return 3000 
-      }
-    } else {
-      return 3000
-    }
   }
 
   const screenWidth = Dimensions.get('window').width;
@@ -136,117 +60,31 @@ export default function ResultScreen() {
     router.push('/(build_hangout)/review');
   }
 
-  const getGoogleMapsData = async () => {
-    const userLocation = {latitude: 40.726113, longitude: -73.952996};
-    const types = getIncludedTypes();
-    const URL = `https://places.googleapis.com/v1/places:searchNearby?key=${process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}`
-    const body = {
-      "includedTypes": types,
-      "maxResultCount": 20,
-      "locationRestriction": {
-        "circle": {
-          "center": userLocation,
-          "radius": getRadius()
-        }
-      }
-    }
-    const headers = {
-      "Content-Type": "application/json",
-      "X-Goog-FieldMask": "places.id,places.types,places.rating,places.priceLevel,places.userRatingCount,places.displayName,places.dineIn,places.servesBreakfast,places.servesLunch,places.servesDinner,places.servesBeer,places.servesWine,places.servesBrunch,places.primaryType,places.editorialSummary,places.outdoorSeating,places.liveMusic,places.menuForChildren,places.servesCocktails,places.servesDessert,places.servesCoffee,places.goodForChildren,places.goodForGroups,places.goodForWatchingSports,places.generativeSummary,places.reviewSummary"
-    }
-
-    try {
-      const response = await fetch(URL, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(body)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error(`HTTP error! Status: ${response.status}`, errorData);
-        setError(errorMessage)
-        setLoading(false);
-        return null;
-      }
-
-      const data = await response.json();
-      if (data.places?.length) {
-        const budgetData = getBudgetData();
-        if (budgetData) {
-          return data.places.filter((place: Place) => 
-            !place.priceLevel || budgetData.includes(place.priceLevel) 
-          );
-        }
-      }
-
-      return data.places;
-
-    } catch (error) {
-      console.error("Error fetching Google Maps data:", error);
-      setError(errorMessage);
-      setLoading(false);
-      return null;
-    }
-  }
-
-  const getGeminiRecs = async () => {
-    const places = await getGoogleMapsData();
-    if (places && places.length > 3) {
-      try {
-        const ai = new GoogleGenAI({apiKey: process.env.EXPO_PUBLIC_GEMINI_API_KEY});
-        const prompt = `
-          Analyze the following three JSON objects:
-            1.  **User Information**: ${JSON.stringify(userInfo)}
-            2.  **Hangout Details**: ${JSON.stringify(hangoutDataForAI)}
-            3.  **Available Places**: ${JSON.stringify(places)}
-          
-          Based on all the provided data, act as a recommendation engine. Your task is to select the top 3 places from the "Available Places" list that best match the "User Information" and "Hangout Details".
-
-          Consider the following criteria for your selection:
-          - The places must be open at the specified date and time.
-          - The type of place must be appropriate for the specified activity.
-          - The choice should align with the user's preferences.
-
-          Your response MUST be a valid JSON array containing the 3 selected place objects.
-        `
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.0-flash-001',
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          config: {
-            responseMimeType: "application/json",
-          }
-        })
-        const aiResponseText = response.candidates[0].content?.parts[0].text;
-        const parsedResults = JSON.parse(aiResponseText);
-        setResults(parsedResults);
-        setLoading(false);
-
-      } catch (error) {
-        console.error(error);
-        setError(errorMessage);
-        setLoading(false);
-      }
-    } else if (places.length > 0) {
-      setResults(places);
-      setLoading(false);
-    } else {
-      setError('There are no places that match your filters and location. Please try a broader search.');
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    if (hangoutData) {
-      getGeminiRecs();
-    }
-  }, [hangoutData])
+  const {results, loading, error} = useHangoutResults(hangoutData);
 
   useEffect(() => {
     setMessage(buildText(hangoutData, selectedResults));
   }, [selectedResults.length])
 
-  if (!loading && error) {
+  if (loading) {
+    return (
+      <View style={{
+        ...styles.container, 
+        backgroundColor: theme.colors.background, 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        paddingHorizontal: 70
+      }}>
+        <ActivityIndicator animating={true} size='large' />
+        <Text style={{
+          textAlign: 'center',
+          marginTop: 40
+        }}>
+          Just a moment while we find the best options for you…
+        </Text>
+      </View>
+    )
+  } else if (error) {
     return (
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <BuildHangoutNavigator onPrev={onPrev} nextDisabled={true} />
@@ -257,7 +95,7 @@ export default function ResultScreen() {
         </View>
       </View>
     )
-  } else if (!loading && !error && screenWidth) {
+  } else if (screenWidth) {
     return (
       <View style={styles.container}>
         <Portal>
@@ -326,25 +164,7 @@ export default function ResultScreen() {
           }
       </View>
     )
-  } else {
-    return (
-      <View style={{
-        ...styles.container, 
-        backgroundColor: theme.colors.background, 
-        justifyContent: 'center', 
-        alignItems: 'center',
-        paddingHorizontal: 70
-      }}>
-        <ActivityIndicator animating={true} size='large' />
-        <Text style={{
-          textAlign: 'center',
-          marginTop: 40
-        }}>
-          Just a moment while we find the best options for you…
-        </Text>
-      </View>
-    )
-  } 
+  }
 }
 
 const styles = StyleSheet.create({

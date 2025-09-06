@@ -1,10 +1,9 @@
-import Contact from '@/types/hangoutData/Contact';
 import React from 'react';
 import { Alert, Linking, Platform, StyleSheet, View } from 'react-native';
 import { IconButton, useTheme } from 'react-native-paper';
 
 interface SMSButtonProps {
-  recipients: Contact[];
+  recipients: string[];
   message: string;
 }
 
