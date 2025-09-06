@@ -6,7 +6,6 @@ import { IconButton, Surface, Text, TouchableRipple, useTheme } from 'react-nati
 export default function ResultScreen() {
   const theme = useTheme();
   const { hangoutData } = useHangoutBuilder();
-  console.log(hangoutData)
 
   const onNext = () => {
     router.push('/(build_hangout)/result');

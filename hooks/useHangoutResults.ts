@@ -1,4 +1,5 @@
 import HangoutData from '@/types/hangoutData/HangoutData';
+import { getUserLocation } from '@/utils/userLocation';
 import { GoogleGenAI } from '@google/genai';
 import { useEffect, useState } from 'react';
 
@@ -82,8 +83,13 @@ export const useHangoutResults = (hangoutData: HangoutData) => {
   }
 
   const getGoogleMapsData = async () => {
-    // TO DO: replace with actual user location
-    const userLocation = { latitude: 40.726113, longitude: -73.952996 };
+    const { location: userLocation, errorMsg } = await getUserLocation();
+    if (errorMsg) {
+      setError('Location permission is required to get hangout suggestions. Please enable location services and try again.');
+      setLoading(false);
+      return null;
+    }
+    console.log(userLocation);
     const types = getIncludedTypes();
     const URL = `https://places.googleapis.com/v1/places:searchNearby?key=${process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}`;
     const body = {

@@ -1,4 +1,3 @@
-import BuildHangoutNavigator from '@/components/BuildHangoutNavigator';
 import ResultCard from '@/components/ResultCard';
 import SendTextModal from '@/components/SendTextModal';
 import { useHangoutBuilder } from '@/context/BuildHangoutContext';
@@ -42,7 +41,6 @@ export default function ResultScreen() {
       copy = [...selectedResults]
       copy.push(place);
     }
-    console.log(copy);
     setSelectedResults(copy);
   }
 
@@ -106,7 +104,6 @@ export default function ResultScreen() {
           />
         </Portal>
         <View style={{...styles.container, padding: CONTAINER_PADDING, backgroundColor: theme.colors.background}}>
-          <BuildHangoutNavigator onPrev={onPrev} nextDisabled={true} />
           <View style={styles.carouselWrapper}>
             <Carousel
               ref={ref}
