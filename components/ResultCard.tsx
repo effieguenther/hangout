@@ -1,5 +1,5 @@
 import usePlaceDetails from '@/hooks/usePlaceDetails';
-import { Place } from '@/types/place';
+import { Place } from '@/types/Place';
 import { Image, Linking, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Button, Icon, Surface, Text, useTheme } from 'react-native-paper';
 

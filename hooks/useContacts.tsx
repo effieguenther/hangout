@@ -1,4 +1,4 @@
-import { Contact } from '@/types/hangoutData';
+import Contact from '@/types/hangoutData/Contact';
 import * as Contacts from 'expo-contacts';
 import { useEffect, useState } from 'react';
 
@@ -45,7 +45,7 @@ const useContacts = () => {
   useEffect(() => {
     (async () => {
       setLoading(true);
-      setError(null); // Reset error on new fetch attempt
+      setError(null);
       try {
         const { status } = await Contacts.requestPermissionsAsync();
 

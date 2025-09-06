@@ -1,4 +1,4 @@
-import { HangoutData } from '@/types/hangoutData';
+import HangoutData from '@/types/hangoutData/HangoutData';
 import React, { createContext, ReactNode, useContext, useState } from 'react';
 
 interface HangoutContextType {

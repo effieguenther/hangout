@@ -1,23 +1,10 @@
-import { Place } from '@/types/place'; // Assuming your Place type
+import DetailedPlace from '@/types/DetailedPlace';
+import Place from '@/types/Place';
+import { getObjData, storeObjData } from '@/utils/cacheData';
 import { useCallback, useEffect, useState } from 'react';
 
 const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 const userLocation = {latitude: 40.726113, longitude: -73.952996};
-
-interface DetailedPlace extends Place {
-  location?: {
-    latitude: number;
-    longitude: number;
-  };
-  formattedAddress?: string;
-  websiteUri?: string;
-  photoUrl?: string | null;
-  photoAttributions?: string[];
-  travelTimes?: {
-    walking: string | null;
-    publicTransit: string | null;
-  }
-}
 
 interface UsePlaceDetailsResult {
   detailedPlace: DetailedPlace | null;
@@ -25,45 +12,50 @@ interface UsePlaceDetailsResult {
   detailError: string | null;
 }
 
-const usePlaceDetails = (place: Place | null): UsePlaceDetailsResult => {
+const usePlaceDetails = (place: Place): UsePlaceDetailsResult => {
   const [detailedPlace, setDetailedPlace] = useState<DetailedPlace | null>(null);
   const [isDetailLoading, setIsDetailLoading] = useState(true);
   const [detailError, setDetailError] = useState<string | null>(null);
 
+  const fetchTravelTime = async (mode: 'driving' | 'walking' | 'transit', origins: string, destinations: string): Promise<string | null> => {
+    try {
+      const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origins}&destinations=${destinations}&mode=${mode}&departure_time=now&key=${GOOGLE_MAPS_API_KEY}`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (!response.ok || data.status !== 'OK') {
+        console.error(`Error fetching ${mode} travel time:`, data.error_message || data.status);
+        return null;
+      }
+
+      if (data.rows && data.rows.length > 0 && data.rows[0].elements && data.rows[0].elements.length > 0) {
+        const element = data.rows[0].elements[0];
+        if (element.status === 'OK' && element.duration) {
+          return element.duration.text;
+        } else {
+          console.warn(`Travel time not available for ${mode}: ${element.status}`);
+          return null;
+        }
+      } else {
+        console.warn(`No travel time data found for ${mode}.`);
+        return null;
+      }
+    } catch (error: any) {
+      console.error(`Network error fetching ${mode} travel time:`, error.message);
+      return null;
+    }
+  };
+  
   const fetchDetails = useCallback(async (currentPlace: Place) => {
     setIsDetailLoading(true);
     setDetailError(null);
 
-    const fetchTravelTime = async (mode: 'driving' | 'walking' | 'transit', origins: string, destinations: string): Promise<string | null> => {
-      try {
-        const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origins}&destinations=${destinations}&mode=${mode}&departure_time=now&key=${GOOGLE_MAPS_API_KEY}`;
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (!response.ok || data.status !== 'OK') {
-          console.error(`Error fetching ${mode} travel time:`, data.error_message || data.status);
-          return null;
-        }
-
-        if (data.rows && data.rows.length > 0 && data.rows[0].elements && data.rows[0].elements.length > 0) {
-          const element = data.rows[0].elements[0];
-          if (element.status === 'OK' && element.duration) {
-            return element.duration.text;
-          } else {
-            console.warn(`Travel time not available for ${mode}: ${element.status}`);
-            return null;
-          }
-        } else {
-          console.warn(`No travel time data found for ${mode}.`);
-          return null;
-        }
-      } catch (error: any) {
-        console.error(`Network error fetching ${mode} travel time:`, error.message);
-        return null;
-      }
-    };
+    // check cache for existing data
+    const cacheData = await getObjData(place.id);
+    if (cacheData) setDetailedPlace(cacheData);
 
     try {
+      // fetch additional details about the place
       const placeDetailsUrl = `https://places.googleapis.com/v1/places/${currentPlace.id}?fields=photos,location,formattedAddress,websiteUri&key=${GOOGLE_MAPS_API_KEY}`;
       const placeDetailsResponse = await fetch(placeDetailsUrl);
       const placeDetailsData = await placeDetailsResponse.json();
@@ -75,6 +67,7 @@ const usePlaceDetails = (place: Place | null): UsePlaceDetailsResult => {
 
       let updatedPlace: DetailedPlace = { ...currentPlace };
 
+      // fetch travel times
       if (placeDetailsData.location) {
         updatedPlace.location = {
           latitude: placeDetailsData.location.latitude,
@@ -99,9 +92,11 @@ const usePlaceDetails = (place: Place | null): UsePlaceDetailsResult => {
           };
         }
       }
+
       if (placeDetailsData.formattedAddress) {
         updatedPlace.formattedAddress = placeDetailsData.formattedAddress;
       }
+
       if (placeDetailsData.websiteUri) {
         updatedPlace.websiteUri = placeDetailsData.websiteUri;
       }
@@ -131,6 +126,7 @@ const usePlaceDetails = (place: Place | null): UsePlaceDetailsResult => {
       }
 
       setDetailedPlace(updatedPlace);
+      storeObjData(updatedPlace.id, updatedPlace);
 
     } catch (error: any) {
       setDetailError(`Error fetching place details: ${error.message}`);

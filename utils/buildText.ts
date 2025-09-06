@@ -1,6 +1,8 @@
+import { HangoutData } from "@/types/hangoutData/HangoutData";
+import Place from "@/types/Place";
 import { getReadableDate } from "./dateUtils";
 
-export const buildText = (hangoutData, selectedResults) => {
+export const buildText = (hangoutData: HangoutData, selectedResults: Place[]): string => {
   const message = ['Hey'];
   if (hangoutData.invitedContacts) {
     message.push(` ${hangoutData?.invitedContacts[0]?.firstName}`)
@@ -39,7 +41,6 @@ export const buildText = (hangoutData, selectedResults) => {
   for (let i = 0; i < selectedResults.length; i++) {
     message.push(selectedResults[i]?.displayName?.text + '\n')
   }
-  console.log(message);
-  console.log(message.join(''));
+  
   return message.join('');
 }

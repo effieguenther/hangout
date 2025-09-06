@@ -2,7 +2,7 @@ import BuildHangoutNavigator from '@/components/BuildHangoutNavigator';
 import ResultCard from '@/components/ResultCard';
 import SendTextModal from '@/components/SendTextModal';
 import { useHangoutBuilder } from '@/context/BuildHangoutContext';
-import { Place } from '@/types/place';
+import Place from '@/types/Place';
 import { buildText } from '@/utils/buildText';
 import { GoogleGenAI } from '@google/genai';
 import { router } from 'expo-router';

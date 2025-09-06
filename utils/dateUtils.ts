@@ -1,10 +1,12 @@
-function getOrdinalSuffix(n) {
+import { MarkedDay } from "@/types/hangoutData";
+
+function getOrdinalSuffix(n: number): string {
   const s = ["th", "st", "nd", "rd"];
   const v = n % 100;
   return s[(v - 20) % 10] || s[v] || s[0];
 }
 
-export const getReadableDate = (dateObject) => {
+export function getReadableDate (dateObject: MarkedDay): string {
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const date = new Date(dateObject.dateString);
   const dayOfWeek = dayNames[date.getUTCDay()];
