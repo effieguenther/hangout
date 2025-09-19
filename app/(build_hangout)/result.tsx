@@ -4,7 +4,6 @@ import { useHangoutBuilder } from '@/context/BuildHangoutContext';
 import { useHangoutResults } from '@/hooks/useHangoutResults';
 import Place from '@/types/Place';
 import { buildText } from '@/utils/buildText';
-import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import {
@@ -53,10 +52,6 @@ export default function ResultScreen() {
       animated: true,
     });
   };
-
-  const onPrev = () => {
-    router.dismiss();
-  }
 
   const {results, loading, error} = useHangoutResults(hangoutData);
 
