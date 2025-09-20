@@ -43,7 +43,9 @@
         {
           "contactsPermission": "Allow hangouts to access your contacts."
         }
-      ]
+      ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth"
     ],
     "experiments": {
       "typedRoutes": true

@@ -40,3 +40,4 @@ app-example
 .env
 
 utils/firebase.ts
+GoogleService-Info.plist
